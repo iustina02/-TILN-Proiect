@@ -14,6 +14,8 @@ Proiectul la obiectul TILN - Mily
   https://github.com/ArthurHub/Android-Image-Cropper
   
   Aici e un exemplu bun de croptarea a imaginilor. Voi incerca sa-l folosesc cat mai bine.
+  
+  Intre timp lucrez si la interfata aplicatiei, insa doar caut mockups, folderul cu acelasi nume.
 
 //Testarea mai multor posibilitati de recunoastere a textului -- momentan voi lasa aceasta parte pe saptamanile viitoare, intre timp trebuie ca inceputul aplicatie sa fie unul bun.
 
