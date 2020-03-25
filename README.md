@@ -23,8 +23,11 @@ Proiectul la obiectul TILN - Mily
 # 27.03 Testarea pe mai multe exemple si afisare de text
 
    Aplicatia poate face poze sau sa aleaga din galeria de fotografii apoi utilizatorul are posibilitatea de a "taia" imaginea pentru o citire mai corecta a acesteia.
+  
   Momentam aplicatia poate citi si de pe imagini facute cu camera, insa rezultatul este doar afisat, nu si sortat. 
-    Legat de testare , am facut in jur de 10-15 teste pe diferite suprafete sau o luminiozitate diferita pentru a vedea exact cum reactioneaza aplicatia.
+    
+   Legat de testare , am facut in jur de 10-15 teste pe diferite suprafete sau o luminiozitate diferita pentru a vedea exact cum reactioneaza aplicatia.
+   
   Am pus cateva exemple in folderul: AppPhotos
 
 # 03.04 Afisarea datelor de interes
