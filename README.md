@@ -29,5 +29,14 @@ Proiectul la obiectul TILN - Mily
    Legat de testare , am facut in jur de 10-15 teste pe diferite suprafete sau o luminiozitate diferita pentru a vedea exact cum reactioneaza aplicatia.
    
   Am pus cateva exemple in folderul: AppPhotos
+  
+  //image crop library
+  // https://github.com/ArthurHub/Android-Image-Cropper
+  implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+
+
+  //image to text google library
+  // https://developers.google.com/android/guides/releases
+  implementation 'com.google.android.gms:play-services-vision:19.0.0'
 
 # 03.04 Afisarea datelor de interes
