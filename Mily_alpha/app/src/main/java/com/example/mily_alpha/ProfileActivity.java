@@ -1,9 +1,11 @@
 package com.example.mily_alpha;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,7 +32,10 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     private TextView nameTextView;
     private TextView emailTextView;
     private Button signOutButton;
-    private Button startAppButton;
+    private Button profileButton;
+    private Button addProductButton;
+    private Button fridgeButton;
+    private Button categButton;
 
     private Button seeUsers;
 
@@ -46,7 +51,11 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         nameTextView = findViewById(R.id.nameTextView);
         emailTextView = findViewById(R.id.emailTextView);
         signOutButton = findViewById(R.id.signOutButton);
-        startAppButton =  findViewById(R.id.startAppButton);
+
+        profileButton =  findViewById(R.id.profile_button);
+        addProductButton = findViewById(R.id.addProducts_button);
+        fridgeButton = findViewById(R.id.frig_button);
+        categButton = findViewById(R.id.categ_button);
 
         seeUsers = findViewById(R.id.SeeUsers);
 
@@ -63,19 +72,20 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
                 Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        if(status.isSuccess())
+                        if(status.isSuccess()){
+                            SharedPreferences preferences = getSharedPreferences("checkbox", MODE_PRIVATE);
+                            String checkbox = preferences.getString("remember","");
+                            if(checkbox.equals("true")){
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("remember","false");
+                                editor.apply();
+                            }
                             gotoLoginActivity();
+                        }
                         else
                             Toast.makeText(ProfileActivity.this,"Log Out Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
-        });
-
-        startAppButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gotoMainActivity();
             }
         });
 
@@ -88,8 +98,43 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         });
 
 
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                finish();
+            }
+        });
+
+        addProductButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                finish();
+            }
+        });
+
+        fridgeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, ListUsers.class));
+                finish();
+            }
+        });
+
+        categButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, CategoryList.class));
+                finish();
+            }
+        });
+
+
 
     }
+
+
     private void gotoMainActivity() {
 
         startActivity(new Intent(ProfileActivity.this, MainActivity.class));

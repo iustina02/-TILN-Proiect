@@ -1,9 +1,22 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.chaquo.python'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
+
+    flavorDimensions "abi"
+    productFlavors {
+        arm {
+            dimension "abi"
+            ndk { abiFilters "armeabi-v7a" }
+        }
+        x86 {
+            dimension "abi"
+            ndk { abiFilters "x86" }
+        }
+    }
 
     defaultConfig {
         applicationId "com.example.mily_alpha"
@@ -13,12 +26,49 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
+
+        python {
+            buildPython "C:/Program Files (x86)/Microsoft Visual Studio/Shared/Python37_64/python.exe"
+            buildPython "py -3.7"
+            pip {
+                install "rowordnet"
+                install "unidecode"
+//                install "lxml.etree"
+//                install "defaultdict"
+//                install "Queue"
+//                install "Synset"
+//                install "WordNetError"
+            }
+        }
+//        python {
+//            pip {
+//                install "networkx"
+//                install "lxml.etree"
+//                install "defaultdict"
+//                install "Queue"
+//                install "Synset"
+//                install "WordNetError"
+//            }
+//        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            python {
+                srcDirs = ["src/main/python"]
+                srcDir "src/main/python"
+            }
         }
     }
 
@@ -50,4 +100,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-vision:19.0.0'
 
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'androidx.mediarouter:mediarouter:1.1.0'
 }

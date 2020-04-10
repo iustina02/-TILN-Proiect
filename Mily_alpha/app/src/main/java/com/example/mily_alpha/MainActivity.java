@@ -18,18 +18,27 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,11 +49,18 @@ public class MainActivity extends AppCompatActivity {
     private static final int STORAGE_REQUEST_CODE = 400;
     private static final int IMAGE_PICK_GALLERY_CODE = 1000;
     private static final int IMAGE_PICK_CAMERA_CODE = 1001;
+    private Button profileButton;
+    private Button addProductButton;
+    private Button fridgeButton;
+
+    private Toast toast;
 
     String cameraPermission[];
     String storagePermission[];
 
     Uri image_uri;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setSubtitle("Click Image button  to insert Image");
 
+
         mResultEt = findViewById(R.id.resultEt);
         mPreviewIv = findViewById(R.id.ImageVw);
 
@@ -60,6 +77,36 @@ public class MainActivity extends AppCompatActivity {
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
+        profileButton =  findViewById(R.id.profile_button);
+        addProductButton = findViewById(R.id.addProducts_button);
+        fridgeButton = findViewById(R.id.frig_button);
+
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                finish();
+            }
+        });
+
+        addProductButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MainActivity.class));
+                finish();
+            }
+        });
+
+        fridgeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ListUsers.class));
+                finish();
+            }
+        });
+
+        if(toast!=null)
+            toast.cancel();
     }
 
 
@@ -232,17 +279,30 @@ public class MainActivity extends AppCompatActivity {
                 if (!recognizer.isOperational()) {
                     Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
                 } else {
+                    Python py =  Python.getInstance();
+                    PyObject pyf = py.getModule("product_Categories");//name of the python file
+
                     Frame frame = new Frame.Builder().setBitmap(bitmap).build();
                     SparseArray<TextBlock> items = recognizer.detect(frame);
                     StringBuilder sb = new StringBuilder();
+                    Dictionary geek = new Hashtable();
                     //get text from sb until  there is no text left
                     for (int i = 0; i < items.size(); i++) {
                         TextBlock myItem = items.valueAt(i);
-                        sb.append(myItem.getValue());
-                        sb.append("\n");
+                        PyObject obj = pyf.callAttr("test",myItem.getValue()); // definition name
+                        if(!obj.equals("Detalii")) {
+                            sb.append(obj.toString());
+                        }
                     }
                     //set text to edit  text
-                    mResultEt.setText(sb.toString());
+                    String Categorie = "";
+                    String[] list_product = sb.toString().split(",");
+                    for(String product : list_product){
+                        Categorie += product.replace("{","").replace("'","").replace("}","") + "\n\n";
+//                        Log.w("Verify String: ", product);
+                    }
+
+                    mResultEt.setText(Categorie);
 
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
