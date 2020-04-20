@@ -23,26 +23,35 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
+import com.example.mily_alpha.DB_Helper.IngredientDBHelper;
+import com.example.mily_alpha.DB_Helper.UserDBHelper;
+import com.example.mily_alpha.DB_Helper.User_IngreDBHelper;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText mResultEt;
+//    EditText mResultEt;
     ImageView mPreviewIv;
 
     private static final int CAMERA_REQUEST_CODE = 200;
@@ -52,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private Button profileButton;
     private Button addProductButton;
     private Button fridgeButton;
+    private Button editButton;
 
     private Toast toast;
 
@@ -70,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setSubtitle("Click Image button  to insert Image");
 
 
-        mResultEt = findViewById(R.id.resultEt);
+//        mResultEt = findViewById(R.id.resultEt);
         mPreviewIv = findViewById(R.id.ImageVw);
 
         //camera permission
@@ -80,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         profileButton =  findViewById(R.id.profile_button);
         addProductButton = findViewById(R.id.addProducts_button);
         fridgeButton = findViewById(R.id.frig_button);
+//        editButton = findViewById(R.id.edit_button);
 
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+
 
         if(toast!=null)
             toast.cancel();
@@ -268,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri(); // get image uri
                 //set image to image view
+
                 mPreviewIv.setImageURI(resultUri);
 
                 //get drawable bitmap for text recognition
@@ -298,11 +311,149 @@ public class MainActivity extends AppCompatActivity {
                     String Categorie = "";
                     String[] list_product = sb.toString().split(",");
                     for(String product : list_product){
-                        Categorie += product.replace("{","").replace("'","").replace("}","") + "\n\n";
-//                        Log.w("Verify String: ", product);
+                        product =  product.replace("{","").replace("'","").replace("}","");
+                        Categorie += product + "\n\n";
+                        Log.w("Verify String: ", product);
                     }
 
-                    mResultEt.setText(Categorie);
+//                    mResultEt.setText(Categorie);
+                    setContentView(R.layout.activity_editproduct);
+                    ActionBar actionBar = getSupportActionBar();
+                    final EditText productTextView = findViewById(R.id.ProdusTextView);
+                    final ListView productListView = findViewById(R.id.produsListView);
+                    Button nextProductButton =  findViewById(R.id.nextButton);
+                    final Button addProductButton = findViewById(R.id.addButton);
+                    final EditText adaugaCateg = findViewById(R.id.categ3_et);
+
+
+                    final String[] productsAll = Categorie.split("\n");
+                    final List<String> productsName = new ArrayList<String>();
+                    final List<String> productsCateg = new ArrayList<String>();
+
+                    for(String prodAll : productsAll){
+                        String[] produ = prodAll.split(":");
+                        if(produ[0] != " " && produ[0] != "\n" && produ[0]!= null && produ[0]!="") {
+                            productsName.add(produ[0]);
+                            if(produ.length > 1)
+                                productsCateg.add(produ[1]);
+                        }
+                    }
+                    Log.d("Products", productsName.toString());
+
+                     class Counter{
+                        int counter = 0;
+                     }
+
+                    class ProdusDetail{
+                        String numeProdus;
+                        String categorieProdus;
+                        String dataExpirareProdus;
+                        String amountProdus;
+                    }
+
+
+                    final Counter count = new Counter();
+                    final ProdusDetail produsDetail = new ProdusDetail();
+
+
+                    produsDetail.numeProdus = productsName.get(count.counter);
+                    productTextView.setText(produsDetail.numeProdus);
+
+                    String[] listData = productsCateg.get(count.counter).split(";");
+                    if(listData.length > 0 ) {
+                        ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
+                        productListView.setAdapter(adapter);
+                        count.counter++;
+                    }
+
+                    if(!adaugaCateg.getText().toString().equals("")) {
+                        Log.d("Categorie", "A fost adagata o noua categorie !");
+                        Toast.makeText(MainActivity.this, "Categoria adaugata !" + adaugaCateg.getText().toString(), Toast.LENGTH_SHORT).show();
+                        adaugaCateg.setText("Adauga o categorie..");
+                    }
+
+
+                    productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            view.setSelected(true);
+
+                            produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString();
+
+                            Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
+                            Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    UserDBHelper userDBHelper = new UserDBHelper(this);
+                    final IngredientDBHelper ingredientDBHelper = new IngredientDBHelper(this);
+                    final User_IngreDBHelper user_ingreDBHelper = new User_IngreDBHelper(this);
+
+//                    TextView nameUser = findViewById(R.id.nameTextView);
+//                    TextView emailUser = findViewById(R.id.emailTextView);
+                    final int user_id = userDBHelper.getUserID("akystyler@gmail.com", "Aky Mika");
+
+
+                    addProductButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(!produsDetail.numeProdus.equals("") && !produsDetail.categorieProdus.equals(""))
+                            {
+                                if(ingredientDBHelper.addIngredient(produsDetail.numeProdus)){
+                                    int ingredient_id = ingredientDBHelper.getIngredientID(produsDetail.numeProdus);
+                                    user_ingreDBHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.categorieProdus);
+                                }
+
+
+                            }
+                            addProductButton.setVisibility(View.GONE);
+                        }
+                    });
+
+
+
+                    nextProductButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                            public void onClick(View v) {
+                            if(!adaugaCateg.getText().toString().equals("")) {
+                                Log.d("Categorie", "A fost adagata o noua categorie !");
+                                Toast.makeText(MainActivity.this, "Categoria adaugata !" + adaugaCateg.getText().toString(), Toast.LENGTH_SHORT).show();
+                                adaugaCateg.setText("");
+                            }
+
+
+                            productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    view.setSelected(true);
+
+                                    String s = productListView.getItemAtPosition(i).toString();
+
+                                    Log.d("Categorie", "Categoria selectata !" + s);
+                                    Toast.makeText(MainActivity.this, "Categoria selectata: " + s, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+
+                            if(count.counter < productsName.size()){
+                                productTextView.setText(productsName.get(count.counter));
+
+                                String[] listData = productsCateg.get(count.counter).split(";");
+                                if(listData.length > 0 ) {
+                                    ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
+                                    productListView.setAdapter(adapter);
+                                }
+
+                                count.counter++;
+
+                                Log.d("Neeeeext", "Lista este afisata !");
+                            }
+                            else if(count.counter == productsName.size()){
+                                setContentView(R.layout.activity_main);
+                            }
+                            }
+                    });
+
 
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {

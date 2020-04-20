@@ -1,6 +1,9 @@
 import rowordnet
 # import unidecode
 
+def tests(arg):
+    return ("\n Text Block: " + arg +"\n");
+
 def test(arg1):
     wn =  rowordnet.RoWordNet()
 
@@ -80,11 +83,11 @@ def test(arg1):
                                 for categ in Categorii:
                                     if literals == categ:
                                         if literals not in new_list_literals:
-                                            new_list_literals += literals + "; "
+                                            new_list_literals += literals + ";"
                             if new_list_literals:
                                 Produs_Catego[produ] = new_list_literals + ","
-                    if produ not in Produs_Catego:
-                        Produs_Catego[produ] = "Adauga categorie..,"
+                    # if produ not in Produs_Catego:
+                    #     Produs_Catego[produ] = "Adauga categorie..,"
 
     if Produs_Catego:
         print(Produs_Catego)

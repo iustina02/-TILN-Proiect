@@ -9,22 +9,21 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-public class UserDBHelper extends SQLiteOpenHelper {
-
+public class IngredientDBHelper extends SQLiteOpenHelper {
     private static  final String TAG = "DatabaseHelper";
     public static final String DATABASE_NAME = "AlphaMily.db";
-    public static final String TABLE_NAME = "User_table";
-    public static final String COL_0 = "User_id";
-    public static final String COL_1 = "User_email";
-    public static final String COL_2 = "User_name";
+    public static final String TABLE_NAME = "Ingredient_table";
+    public static final String COL_0 = "Ingredient_id";
+    public static final String COL_1 = "Ingredient_name";
+    public static final String COL_2 = "Ingredient_calories";
 
-    public UserDBHelper(Context context) {
+    public IngredientDBHelper(Context context) {
         super(context, DATABASE_NAME, null, 4);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + TABLE_NAME + " ( User_id INTEGER PRIMARY KEY AUTOINCREMENT, User_email TEXT, User_name TEXT)");
+        db.execSQL("create table " + TABLE_NAME + " (Ingredient_id INTEGER PRIMARY KEY AUTOINCREMENT, Ingredient_name TEXT, Ingredient_calories INTEGER)");
     }
 
     @Override
@@ -33,15 +32,18 @@ public class UserDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public  boolean addUser(String user_email, String user_name){
+    public  boolean addIngredient(String ingredient_name){
         SQLiteDatabase db =  this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
 
-        if(!checkUserExists(user_email,user_name)){
-            contentValues.put(COL_1, user_email);
-            contentValues.put(COL_2, user_name);
-            Log.d(TAG, "addData: Adding " + user_name + " to " + TABLE_NAME);
+        // FUNCTIE DE CALCULAT CALORIEILE PER INGREDIENT
+        int Ingredient_calories = 0;
+
+        if(!checkIngredientExists(ingredient_name)){
+            contentValues.put(COL_1, ingredient_name);
+            contentValues.put(COL_2, Ingredient_calories);
+            Log.d(TAG, "addData: Adding " + ingredient_name + " to " + TABLE_NAME);
 
             long result = db.insert(TABLE_NAME, null, contentValues);
             if (result == -1)
@@ -54,11 +56,10 @@ public class UserDBHelper extends SQLiteOpenHelper {
         }
     }
 
-
-    public boolean checkUserExists(String user_email, String user_name){
+    public boolean checkIngredientExists(String ingredient_name){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor data = db.rawQuery(
-                "select * from "+TABLE_NAME +" where User_email = ? and User_name = ? ", new String[]{user_email, user_name},null);
+                "select * from "+TABLE_NAME +" where ingredient_name = ? ", new String[]{ingredient_name},null);
         ArrayList<String> listData = new ArrayList<>();
         while(data.moveToNext()){
             listData.add(data.getString(1));
@@ -79,10 +80,9 @@ public class UserDBHelper extends SQLiteOpenHelper {
         return data;
     }
 
-    public int getUserID(String user_email, String user_name){
-
+    public int getIngredientID(String ingredient_name) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor data = db.rawQuery("select user_id from "+TABLE_NAME +" where User_email = ? and User_name = ? ", new String[]{user_email, user_name},null);
+        Cursor data = db.rawQuery("select Ingredient_id from " + TABLE_NAME + " where ingredient_name = ?", new String[]{ingredient_name}, null);
 
         ArrayList<String> listData = new ArrayList<>();
         while(data.moveToNext()){

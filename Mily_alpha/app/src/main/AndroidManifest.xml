@@ -18,7 +18,7 @@
         <activity android:name=".ProfileActivity"></activity>
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".ListUsers"></activity>
-        <activity android:name=".CategoryList"></activity>
+        <activity android:name=".EditCategoriesActivity"></activity>
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
