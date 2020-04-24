@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="361dp"
+        android:layout_height="426dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="11dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/sos_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_sos" />
+
+            <Button
+                android:id="@+id/condimente_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_condimente" />
+
+            <Button
+                android:id="@+id/paste_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_paste" />
+
+            <Button
+                android:id="@+id/mirodenii_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_mirodenii" />
+
+            <Button
+                android:id="@+id/faina_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_cereals" />
+
+            <Button
+                android:id="@+id/carne_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_meat" />
+
+            <Button
+                android:id="@+id/fructe_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_fruits" />
+
+            <Button
+                android:id="@+id/lactate_button"
+                android:layout_width="184dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_lactate" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/profile_button"
+        android:layout_width="95dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginLeft="2dp"
+        android:text="Profile"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/addProducts_button"
+        android:layout_width="106dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:text="+Products"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/profile_button" />
+
+    <Button
+        android:id="@+id/frig_button"
+        android:layout_width="74dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:text="Fridge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/addProducts_button" />
+
+    <Button
+        android:id="@+id/edit_button"
+        android:layout_width="72dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:text="Edit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/frig_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

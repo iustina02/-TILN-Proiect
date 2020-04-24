@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 public class IngredientDBHelper extends SQLiteOpenHelper {
     private static  final String TAG = "DatabaseHelper";
+    private static final int  DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "AlphaMily.db";
     public static final String TABLE_NAME = "Ingredient_table";
     public static final String COL_0 = "Ingredient_id";
@@ -18,12 +19,12 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
     public static final String COL_2 = "Ingredient_calories";
 
     public IngredientDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, 4);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + TABLE_NAME + " (Ingredient_id INTEGER PRIMARY KEY AUTOINCREMENT, Ingredient_name TEXT, Ingredient_calories INTEGER)");
+        db.execSQL("create table " + TABLE_NAME + " ( Ingredient_id INTEGER PRIMARY KEY AUTOINCREMENT, Ingredient_name TEXT, Ingredient_calories INTEGER)");
     }
 
     @Override
@@ -51,7 +52,7 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
             else
                 return true;
         }else{
-            Log.d(TAG, "User already exists in database !");
+            Log.d(TAG, "Ingredient already exists in database !");
             return false;
         }
     }
@@ -73,11 +74,19 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Cursor getData(){
+    public ArrayList<String> getData(){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_NAME;
         Cursor data = db.rawQuery(query,null);
-        return data;
+
+        ArrayList<String> listData = new ArrayList<>();
+        while(data.moveToNext()){
+            listData.add(data.getString(1));
+        }
+        if(!listData.isEmpty())
+            return listData;
+        else
+            return null;
     }
 
     public int getIngredientID(String ingredient_name) {

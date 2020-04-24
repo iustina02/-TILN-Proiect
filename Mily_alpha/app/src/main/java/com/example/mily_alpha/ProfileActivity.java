@@ -1,6 +1,5 @@
 package com.example.mily_alpha;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,8 +28,20 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     UserDBHelper userDBHelper;
 
     private ImageView profileImage;
-    private TextView nameTextView;
-    private TextView emailTextView;
+
+    public TextView getNameTextView() {
+        return nameTextView;
+    }
+
+    public TextView getEmailTextView() {
+        return emailTextView;
+    }
+
+    public TextView nameTextView;
+    public TextView emailTextView;
+    public String NameUser;
+    public String EmailUser;
+
     private Button signOutButton;
     private Button profileButton;
     private Button addProductButton;
@@ -45,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
 
         profileImage = findViewById(R.id.profileImageView);
         nameTextView = findViewById(R.id.nameTextView);
@@ -90,7 +102,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         seeUsers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =  new Intent(ProfileActivity.this, ListUsers.class);
+                Intent intent =  new Intent(ProfileActivity.this, ListCategoryActivity.class);
                 startActivity(intent);
             }
         });
@@ -99,7 +111,10 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, ProfileActivity.class));
+                Intent sendStuff = new Intent(ProfileActivity.this, ProfileActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
                 finish();
             }
         });
@@ -107,7 +122,10 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         addProductButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                Intent sendStuff = new Intent(ProfileActivity.this, MainActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
                 finish();
             }
         });
@@ -115,7 +133,10 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         fridgeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, ListUsers.class));
+                Intent sendStuff = new Intent(ProfileActivity.this, ListCategoryActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
                 finish();
             }
         });
@@ -142,8 +163,11 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         if(result.isSuccess()){
 
             GoogleSignInAccount account = result.getSignInAccount();
-            nameTextView.setText(account.getDisplayName());
-            emailTextView.setText(account.getEmail());
+            NameUser = account.getDisplayName();
+            EmailUser = account.getEmail();
+
+            nameTextView.setText(NameUser);
+            emailTextView.setText(EmailUser);
             AddData(account.getEmail(),account.getDisplayName());
 
             Picasso.get().load(account.getPhotoUrl()).placeholder(R.mipmap.ic_launcher).into(profileImage);

@@ -17,7 +17,7 @@
         android:name="com.chaquo.python.android.PyApplication">
         <activity android:name=".ProfileActivity"></activity>
         <activity android:name=".MainActivity"></activity>
-        <activity android:name=".ListUsers"></activity>
+        <activity android:name=".ListCategoryActivity"></activity>
         <activity android:name=".EditCategoriesActivity"></activity>
         <activity android:name=".LoginActivity">
             <intent-filter>

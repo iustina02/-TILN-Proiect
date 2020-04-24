@@ -30,7 +30,7 @@ public class LoginActivity extends AppCompatActivity  implements GoogleApiClient
         SharedPreferences preferences = getSharedPreferences("checkbox", MODE_PRIVATE);
         String checkbox = preferences.getString("remember","");
         if(checkbox.equals("true")){
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
         }else if(checkbox.equals("false")){
             Toast.makeText(LoginActivity.this, "Sign In", Toast.LENGTH_SHORT).show();
         }
