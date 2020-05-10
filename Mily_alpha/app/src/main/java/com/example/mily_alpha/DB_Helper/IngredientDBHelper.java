@@ -103,6 +103,20 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
             return 0;
     }
 
+    public String getIngredientById(String ingredientId){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select Ingredient_name from " + TABLE_NAME + " where Ingredient_id = ?", new String[]{ingredientId}, null);
+
+        ArrayList<String> listData = new ArrayList<>();
+        while(data.moveToNext()){
+            listData.add(data.getString(0));
+        }
+        if(!listData.isEmpty())
+            return listData.get(0);
+        else
+            return null;
+    }
+
     public void deleteData(){
         SQLiteDatabase db = this.getWritableDatabase();
         String quoery = "DELETE FROM " + TABLE_NAME;

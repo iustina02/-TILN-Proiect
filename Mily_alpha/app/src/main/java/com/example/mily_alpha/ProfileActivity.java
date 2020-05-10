@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -172,6 +173,8 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
 
             Picasso.get().load(account.getPhotoUrl()).placeholder(R.mipmap.ic_launcher).into(profileImage);
         }else{
+            Toast.makeText(ProfileActivity.this,"Log in Failed", Toast.LENGTH_SHORT).show();
+            Log.w("Log in String: failed! ","Logged in failed!");
            gotoMainActivity();
         }
     }

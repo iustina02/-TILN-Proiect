@@ -500,7 +500,10 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d("Neeeeext", "Lista este afisata !");
                                 }
                                 else if(count.counter == productsName.size()){
-                                    startActivity(new Intent(MainActivity.this, ListCategoryActivity.class));
+                                    Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
+                                    sendStuff.putExtra("name", NameUser);
+                                    sendStuff.putExtra("email",EmailUser);
+                                    startActivity(sendStuff);
                                     finish();
                                 }
                             }

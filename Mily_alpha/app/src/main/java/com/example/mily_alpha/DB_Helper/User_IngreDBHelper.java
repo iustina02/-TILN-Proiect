@@ -91,4 +91,19 @@ public class User_IngreDBHelper extends SQLiteOpenHelper {
             return null;
     }
 
+    public ArrayList<String> GetProdusByCategAndUser(int UserID, String Categorie){
+        ArrayList<String> listData = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select Ingredient_id from "+TABLE_NAME +" where User_id = ? and Categorie = ? ", new String[]{UserID+"", Categorie},null);
+
+        while(data.moveToNext()){
+            listData.add(data.getString(0));
+        }
+        if(!listData.isEmpty()) {
+            return listData;
+        }
+        else
+            return null;
+    }
+
 }

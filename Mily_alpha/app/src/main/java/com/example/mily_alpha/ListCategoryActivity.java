@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.Nullable;
@@ -118,6 +120,124 @@ public class ListCategoryActivity extends AppCompatActivity {
         });
 
         populateList();
+
+        carneButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                ListView seeProductByCateg = findViewById(R.id.list_products);
+
+                User_IngreDBHelper user_ingreDBHelper = new User_IngreDBHelper(ListCategoryActivity.this);
+                UserDBHelper userDBHelper = new UserDBHelper(ListCategoryActivity.this);
+                IngredientDBHelper ingredientDBHelper = new IngredientDBHelper(ListCategoryActivity.this);
+                int User_id = userDBHelper.getUserID(EmailUser, NameUser);
+
+                ArrayList<String> listData = null;
+                if(user_ingreDBHelper.GetProdusByCategAndUser(User_id, " carne") != null) {
+                    listData = user_ingreDBHelper.GetProdusByCategAndUser(User_id, " carne");
+                }
+                if(listData != null) {
+                    String[] Ingrediente = new String[listData.size()];
+                    int count = 0;
+
+                    for (String ingredient_id : listData) {
+                        Ingrediente[count] = ingredientDBHelper.getIngredientById(ingredient_id);
+                        count++;
+                    }
+
+                    if (Ingrediente != null) {
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+                        ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                        seeProductByCateg.setAdapter(adapter);
+                    }
+                } else {
+                    String Ingrediente[] ={"No ingredients found"};
+                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                    seeProductByCateg.setAdapter(adapter);
+                }
+            }
+        });
+
+        fainaButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                ListView seeProductByCateg = findViewById(R.id.list_products);
+
+                User_IngreDBHelper user_ingreDBHelper = new User_IngreDBHelper(ListCategoryActivity.this);
+                UserDBHelper userDBHelper = new UserDBHelper(ListCategoryActivity.this);
+                IngredientDBHelper ingredientDBHelper = new IngredientDBHelper(ListCategoryActivity.this);
+                int User_id = userDBHelper.getUserID(EmailUser, NameUser);
+
+                ArrayList<String> listData = null;
+                if(user_ingreDBHelper.GetProdusByCategAndUser(User_id, "faina") != null) {
+                    listData = user_ingreDBHelper.GetProdusByCategAndUser(User_id, "faina");
+                }
+                if(listData != null) {
+                    String[] Ingrediente = new String[listData.size()];
+                    int count = 0;
+
+                    for (String ingredient_id : listData) {
+                        Ingrediente[count] = ingredientDBHelper.getIngredientById(ingredient_id);
+                        Log.d("From refrigerator", "Produse: " + Ingrediente[count]);
+                        count++;
+                    }
+
+                    if (Ingrediente != null) {
+                        ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                        seeProductByCateg.setAdapter(adapter);
+                    }
+                } else {
+                    String Ingrediente[] ={"No ingredients found"};
+                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                    seeProductByCateg.setAdapter(adapter);
+                    fainaButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        fructeButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                ListView seeProductByCateg = findViewById(R.id.list_products);
+
+                User_IngreDBHelper user_ingreDBHelper = new User_IngreDBHelper(ListCategoryActivity.this);
+                UserDBHelper userDBHelper = new UserDBHelper(ListCategoryActivity.this);
+                IngredientDBHelper ingredientDBHelper = new IngredientDBHelper(ListCategoryActivity.this);
+                int User_id = userDBHelper.getUserID(EmailUser, NameUser);
+
+                ArrayList<String> listData = null;
+                if(user_ingreDBHelper.GetProdusByCategAndUser(User_id, " fruct") != null) {
+                    listData = user_ingreDBHelper.GetProdusByCategAndUser(User_id, " fruct");
+                }
+                if(listData != null) {
+                    String[] Ingrediente = new String[listData.size()];
+                    int count = 0;
+
+                    for (String ingredient_id : listData) {
+                        Ingrediente[count] = ingredientDBHelper.getIngredientById(ingredient_id);
+                        Log.d("From refrigerator", "Produse: " + Ingrediente[count]);
+                        count++;
+                    }
+
+                    if (Ingrediente != null) {
+                        ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                        seeProductByCateg.setAdapter(adapter);
+                    }
+                } else {
+                    String Ingrediente[] ={"No ingredients found"};
+                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                    seeProductByCateg.setAdapter(adapter);
+                    fainaButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
     }
 
     private void populateList() {
@@ -127,43 +247,33 @@ public class ListCategoryActivity extends AppCompatActivity {
         ArrayList<String> listData ;
         if(user_ingreDBHelper.getData() != null) {
             listData = user_ingreDBHelper.getData();
-        }
-        else
-            listData = ingredientDBHelper.getData();
-
-        for ( String categ : listData) {
-            Log.d(TAG, "Categ:" + categ);
-            if(categ.equals(" carne")) {
-                carneButton.setVisibility(View.VISIBLE);
-                carneButton.setEnabled(true);
-            }
-            else if(categ.equals(" faina")) {
-                fainaButton.setVisibility(View.VISIBLE);
-                fainaButton.setEnabled(true);
-            }
-            else if(categ.equals(" fruct")) {
-                fructeButton.setVisibility(View.VISIBLE);
-                fructeButton.setEnabled(true);
-            }
-            else if(categ.equals(" lactate")) {
-                lactateButton.setVisibility(View.VISIBLE);
-                lactateButton.setEnabled(true);
-            }
-            else if(categ.equals(" condiment")) {
-                condimenteButton.setVisibility(View.VISIBLE);
-                condimenteButton.setEnabled(true);
-            }
-            else if(categ.equals(" mirodenii")) {
-                mirodeniiButton.setVisibility(View.VISIBLE);
-                mirodeniiButton.setEnabled(true);
-            }
-            else if(categ.equals("sos")) {
-                sosButton.setVisibility(View.VISIBLE);
-                sosButton.setEnabled(true);
-            }
-            else if(categ.equals(" paste")) {
-                pasteButton.setVisibility(View.VISIBLE);
-                pasteButton.setEnabled(true);
+            for (String categ : listData) {
+                Log.d(TAG, "Categ:" + categ);
+                if (categ.equals(" carne")) {
+                    carneButton.setVisibility(View.VISIBLE);
+                    carneButton.setEnabled(true);
+                } else if (categ.equals(" faina")) {
+                    fainaButton.setVisibility(View.VISIBLE);
+                    fainaButton.setEnabled(true);
+                } else if (categ.equals(" fruct")) {
+                    fructeButton.setVisibility(View.VISIBLE);
+                    fructeButton.setEnabled(true);
+                } else if (categ.equals(" lactate")) {
+                    lactateButton.setVisibility(View.VISIBLE);
+                    lactateButton.setEnabled(true);
+                } else if (categ.equals(" condiment")) {
+                    condimenteButton.setVisibility(View.VISIBLE);
+                    condimenteButton.setEnabled(true);
+                } else if (categ.equals(" mirodenii")) {
+                    mirodeniiButton.setVisibility(View.VISIBLE);
+                    mirodeniiButton.setEnabled(true);
+                } else if (categ.equals("sos")) {
+                    sosButton.setVisibility(View.VISIBLE);
+                    sosButton.setEnabled(true);
+                } else if (categ.equals(" paste")) {
+                    pasteButton.setVisibility(View.VISIBLE);
+                    pasteButton.setEnabled(true);
+                }
             }
         }
 
