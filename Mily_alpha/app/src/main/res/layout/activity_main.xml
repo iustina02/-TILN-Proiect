@@ -7,137 +7,56 @@
     android:layout_gravity="center_horizontal"
     tools:context=".MainActivity">
 
-    <!--    <ScrollView-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        tools:layout_editor_absoluteX="-46dp"-->
-    <!--        tools:layout_editor_absoluteY="16dp">-->
-
-    <!--    </ScrollView>-->
-
-    <!--    <LinearLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:orientation="vertical">-->
-
-    <!--        <androidx.cardview.widget.CardView-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="match_parent"-->
-    <!--            app:cardBackgroundColor="#fff"-->
-    <!--            app:cardCornerRadius="3dp"-->
-    <!--            app:cardElevation="3dp"-->
-    <!--            app:cardUseCompatPadding="true">-->
-
-    <!--            <LinearLayout-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:orientation="vertical"-->
-    <!--                android:padding="5dp">-->
-
-    <!--                <TextView-->
-    <!--                    android:layout_width="match_parent"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:text="Result"-->
-    <!--                    android:textColor="@color/colorPrimary"-->
-    <!--                    android:textSize="20sp" />-->
-
-    <!--                <EditText-->
-    <!--                    android:id="@+id/resultEt"-->
-    <!--                    android:layout_width="match_parent"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:autoLink="all"-->
-    <!--                    android:background="@null"-->
-    <!--                    android:hint=""-->
-    <!--                    android:padding="5dp"-->
-    <!--                    android:textColor="#000"-->
-    <!--                    android:textSize="10sp"/>-->
-    <!--            </LinearLayout>-->
-    <!--        </androidx.cardview.widget.CardView>-->
-
-    <!--        <androidx.cardview.widget.CardView-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="match_parent"-->
-    <!--            app:cardBackgroundColor="#fff"-->
-    <!--            app:cardCornerRadius="3dp"-->
-    <!--            app:cardElevation="3dp"-->
-    <!--            app:cardUseCompatPadding="true">-->
-
-    <!--            <LinearLayout-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:orientation="vertical"-->
-    <!--                android:padding="5dp">-->
-
-    <!--                <TextView-->
-    <!--                    android:layout_width="match_parent"-->
-    <!--                    android:layout_height="wrap_content"-->
-    <!--                    android:text="Image Preview"-->
-    <!--                    android:textColor="@color/colorPrimary"-->
-    <!--                    android:textSize="20sp" />-->
 
     <ImageView
         android:id="@+id/ImageVw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxHeight="250dp" />
-    <!--            </LinearLayout>-->
-    <!--        </androidx.cardview.widget.CardView>-->
-    <!--    </LinearLayout>-->
 
     <Button
         android:id="@+id/profile_button"
-        android:layout_width="95dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginLeft="2dp"
-        android:text="Profile"
+        android:layout_width="78dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/button_profile"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
+        app:layout_constraintVertical_bias="0.974" />
 
     <Button
         android:id="@+id/addProducts_button"
-        android:layout_width="105dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:text="+Products"
+        android:layout_width="78dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginLeft="60dp"
+        android:background="@drawable/button_plusprodus"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/profile_button"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
+        app:layout_constraintVertical_bias="0.97" />
 
     <Button
         android:id="@+id/frig_button"
-        android:layout_width="71dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:text="Fridge"
+        android:layout_width="78dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginLeft="36dp"
+        android:background="@drawable/button_refrigerator"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/addProducts_button"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
-
-    <Button
-        android:id="@+id/edit_button"
-        android:layout_width="72dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:text="Edit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/frig_button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
+        app:layout_constraintVertical_bias="0.974" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="196dp"
-        android:layout_height="70dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="248dp"
-        android:text="Pick an image!"
+        android:text="Alege o imagine!"
         android:textSize="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"

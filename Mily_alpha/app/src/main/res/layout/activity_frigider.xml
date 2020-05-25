@@ -8,10 +8,13 @@
 
     <ScrollView
         android:id="@+id/scrollView1"
-        android:layout_width="361dp"
-        android:layout_height="426dp"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="11dp">
+        android:layout_width="366dp"
+        android:layout_height="400dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,126 +22,110 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/sos_button"
-                android:layout_width="184dp"
-                android:layout_height="108dp"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/button_sos" />
-
-            <Button
-                android:id="@+id/condimente_button"
-                android:layout_width="184dp"
-                android:layout_height="108dp"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/button_condimente" />
-
-            <Button
-                android:id="@+id/paste_button"
-                android:layout_width="184dp"
-                android:layout_height="108dp"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/button_paste" />
-
-            <Button
-                android:id="@+id/mirodenii_button"
-                android:layout_width="184dp"
-                android:layout_height="108dp"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/button_mirodenii" />
-
-            <Button
-                android:id="@+id/faina_button"
-                android:layout_width="184dp"
-                android:layout_height="108dp"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/button_cereals" />
-
-            <Button
-                android:id="@+id/carne_button"
-                android:layout_width="184dp"
-                android:layout_height="108dp"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/button_meat" />
-
-            <Button
                 android:id="@+id/fructe_button"
-                android:layout_width="184dp"
+                android:layout_width="330dp"
                 android:layout_height="108dp"
-                android:layout_marginStart="85dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginLeft="85dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/button_fruits" />
+                android:background="@drawable/button_fructe" />
+
+            <Button
+                android:id="@+id/legume_button"
+                android:layout_width="330dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_legume" />
 
             <Button
                 android:id="@+id/lactate_button"
-                android:layout_width="184dp"
+                android:layout_width="330dp"
                 android:layout_height="108dp"
-                android:layout_marginStart="85dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginLeft="85dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/button_lactate" />
+
+            <Button
+                android:id="@+id/carne_button"
+                android:layout_width="330dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_carne" />
+
+            <Button
+                android:id="@+id/faina_button"
+                android:layout_width="330dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_cereale" />
+
+            <Button
+                android:id="@+id/condimente_button"
+                android:layout_width="330dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_condimente" />
 
         </LinearLayout>
     </ScrollView>
 
     <Button
         android:id="@+id/profile_button"
-        android:layout_width="95dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginLeft="2dp"
-        android:text="Profile"
+        android:layout_width="78dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/button_profile"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.974" />
 
     <Button
         android:id="@+id/addProducts_button"
-        android:layout_width="106dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:text="+Products"
+        android:layout_width="78dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginLeft="60dp"
+        android:background="@drawable/button_plusprodus"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_button" />
+        app:layout_constraintStart_toEndOf="@+id/profile_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.97" />
 
     <Button
         android:id="@+id/frig_button"
-        android:layout_width="74dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:text="Fridge"
+        android:layout_width="78dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginLeft="36dp"
+        android:background="@drawable/button_refrigerator"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/addProducts_button" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/addProducts_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.974" />
 
-    <Button
-        android:id="@+id/edit_button"
-        android:layout_width="72dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:text="Edit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/frig_button" />
+<!--    <ImageView-->
+<!--        android:id="@+id/buttom_menu"-->
+<!--        android:layout_width="405dp"-->
+<!--        android:layout_height="5dp"-->
+<!--        android:background="#222"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/scrollView1" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

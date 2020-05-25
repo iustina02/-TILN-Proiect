@@ -12,6 +12,7 @@ import java.util.ArrayList;
 public class UserDBHelper extends SQLiteOpenHelper {
 
     private static  final String TAG = "DatabaseHelper";
+    private static final int  DATABASE_VERSION = 10;
     public static final String DATABASE_NAME = "AlphaMily.db";
     public static final String TABLE_NAME = "User_table";
     public static final String COL_0 = "User_id";
@@ -19,7 +20,7 @@ public class UserDBHelper extends SQLiteOpenHelper {
     public static final String COL_2 = "User_name";
 
     public UserDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, 4);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override

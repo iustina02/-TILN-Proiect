@@ -11,7 +11,8 @@ import java.util.ArrayList;
 
 public class IngredientDBHelper extends SQLiteOpenHelper {
     private static  final String TAG = "DatabaseHelper";
-    private static final int  DATABASE_VERSION = 4;
+    private static final int  DATABASE_VERSION = 10;
+    private static int  OLD_DATABASE_VERSION = 9;
     public static final String DATABASE_NAME = "AlphaMily.db";
     public static final String TABLE_NAME = "Ingredient_table";
     public static final String COL_0 = "Ingredient_id";
@@ -29,9 +30,14 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        onCreate(db);
+        if(oldVersion < newVersion){
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            onCreate(db);
+            OLD_DATABASE_VERSION = 10;
+        }
     }
+
+
 
     public  boolean addIngredient(String ingredient_name){
         SQLiteDatabase db =  this.getWritableDatabase();
@@ -46,11 +52,20 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
             contentValues.put(COL_2, Ingredient_calories);
             Log.d(TAG, "addData: Adding " + ingredient_name + " to " + TABLE_NAME);
 
-            long result = db.insert(TABLE_NAME, null, contentValues);
-            if (result == -1)
-                return false;
-            else
-                return true;
+            db.beginTransaction();
+            try {
+                db.insert(TABLE_NAME, null, contentValues);
+                 db.setTransactionSuccessful();
+
+                 return true;
+            }
+//            catch (Exception e) {
+//                return false;
+//            }
+            finally {
+                db.endTransaction();
+            }
+
         }else{
             Log.d(TAG, "Ingredient already exists in database !");
             return false;
@@ -59,18 +74,30 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
 
     public boolean checkIngredientExists(String ingredient_name){
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor data = db.rawQuery(
-                "select * from "+TABLE_NAME +" where ingredient_name = ? ", new String[]{ingredient_name},null);
-        ArrayList<String> listData = new ArrayList<>();
-        while(data.moveToNext()){
-            listData.add(data.getString(1));
+        onUpgrade(db,OLD_DATABASE_VERSION,DATABASE_VERSION);
+        db.beginTransaction();
+        Cursor data;
+        try {
+            data = db.rawQuery("select * from " + TABLE_NAME + " where ingredient_name = ? ", new String[]{ingredient_name}, null);
+            db.setTransactionSuccessful();
+
+            ArrayList<String> listData = new ArrayList<>();
+            while (data.moveToNext()) {
+                listData.add(data.getString(1));
+            }
+            if (!listData.isEmpty()) {
+                //daca exista un rezultat in lista => exista acel user
+                return true;
+            } else {
+                //daca exista nu un rezultat in lista
+                return false;
+            }
         }
-        if(!listData.isEmpty()) {
-            //daca exista un rezultat in lista => exista acel user
-            return true;
-        }else{
-            //daca exista nu un rezultat in lista
-            return false;
+//        catch (Exception e) {
+//            return false;
+//        }
+        finally {
+            db.endTransaction();
         }
     }
 
@@ -91,16 +118,25 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
 
     public int getIngredientID(String ingredient_name) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor data = db.rawQuery("select Ingredient_id from " + TABLE_NAME + " where ingredient_name = ?", new String[]{ingredient_name}, null);
+        Cursor data;
 
-        ArrayList<String> listData = new ArrayList<>();
-        while(data.moveToNext()){
-            listData.add(data.getString(0));
+        db.beginTransaction();
+        try {
+            data = db.rawQuery("select Ingredient_id from " + TABLE_NAME + " where ingredient_name = ?", new String[]{ingredient_name}, null);
+            db.setTransactionSuccessful();
+
+            ArrayList<String> listData = new ArrayList<>();
+            while (data.moveToNext()) {
+                listData.add(data.getString(0));
+            }
+            if (!listData.isEmpty())
+                return Integer.parseInt(listData.get(0));
+            else
+                return 0;
         }
-        if(!listData.isEmpty())
-            return Integer.parseInt(listData.get(0));
-        else
-            return 0;
+        finally {
+            db.endTransaction();
+        }
     }
 
     public void deleteData(){
@@ -108,5 +144,19 @@ public class IngredientDBHelper extends SQLiteOpenHelper {
         String quoery = "DELETE FROM " + TABLE_NAME;
         Log.d(TAG,"Delete data: " + quoery);
         db.execSQL(quoery);
+    }
+
+    public String getIngredientById(String ingredientId){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select Ingredient_name from " + TABLE_NAME + " where Ingredient_id = ?", new String[]{ingredientId}, null);
+
+        ArrayList<String> listData = new ArrayList<>();
+        while(data.moveToNext()){
+            listData.add(data.getString(0));
+        }
+        if(!listData.isEmpty())
+            return listData.get(0);
+        else
+            return null;
     }
 }

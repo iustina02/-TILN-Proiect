@@ -6,13 +6,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mily_alpha.DB_Helper.UserDBHelper;
+import com.example.mily_alpha.DB_Helper.DatabaseHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -25,7 +26,7 @@ import com.google.android.gms.common.api.Status;
 import com.squareup.picasso.Picasso;
 
 public class ProfileActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
-    UserDBHelper userDBHelper;
+    DatabaseHelper databaseHelper;
 
     private ImageView profileImage;
 
@@ -47,7 +48,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     private Button addProductButton;
     private Button fridgeButton;
 
-    private Button seeUsers;
+    private Button SeeShoopingList;
 
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
@@ -67,9 +68,12 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         addProductButton = findViewById(R.id.addProducts_button);
         fridgeButton = findViewById(R.id.frig_button);
 
-        seeUsers = findViewById(R.id.SeeUsers);
+        SeeShoopingList = findViewById(R.id.SeeShoopingList);
 
-        userDBHelper = new UserDBHelper(this);
+        Log.d("Namae User", "User name: " + NameUser);
+        Log.d("Email User", "User email: " + EmailUser);
+
+        databaseHelper = new DatabaseHelper(this);
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
@@ -99,11 +103,14 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
             }
         });
 
-        seeUsers.setOnClickListener(new View.OnClickListener() {
+        SeeShoopingList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent =  new Intent(ProfileActivity.this, ListCategoryActivity.class);
-                startActivity(intent);
+                Intent sendStuff = new Intent(ProfileActivity.this, ShoppingListActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
+                finish();
             }
         });
 
@@ -201,11 +208,27 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     }
 
     public void AddData(String UserEmail, String UserName){
-        boolean insertData = userDBHelper.addUser(UserEmail,UserName);
-        if(insertData) {
-            //Toast.makeText(this, "Data Successfully Inserted!", Toast.LENGTH_SHORT).show();
-        }else{
-            //Toast.makeText(this, "Data Insert Failed!", Toast.LENGTH_SHORT).show();
+        boolean insertData = databaseHelper.addUser(UserEmail,UserName);
+//        if(insertData) {
+////            Toast.makeText(this, "Data Successfully Inserted!", Toast.LENGTH_SHORT).show();
+//        }else{
+////            Toast.makeText(this, "Data Insert Failed!", Toast.LENGTH_SHORT).show();
+//        }
+    }
+
+    private Boolean goBack = false;
+    @Override
+    public void onBackPressed() {
+        if (goBack == true) {
+            Log.d("Go back:", "YES");
+            super.onBackPressed();
+            Intent sendStuff = new Intent(ProfileActivity.this, ProfileActivity.class);
+            sendStuff.putExtra("name", NameUser);
+            sendStuff.putExtra("email",EmailUser);
+            startActivity(sendStuff);
+            finish();
+        } else {
+            Log.d("Go back:", "NO");
         }
     }
 }

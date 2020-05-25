@@ -4,49 +4,46 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.mily_alpha.DB_Helper.IngredientDBHelper;
-import com.example.mily_alpha.DB_Helper.UserDBHelper;
-import com.example.mily_alpha.DB_Helper.User_IngreDBHelper;
+import com.example.mily_alpha.DB_Helper.DatabaseHelper;
 
 import java.util.ArrayList;
 
 public class ListCategoryActivity extends AppCompatActivity {
 
-     String TAG  = "ListUsers";
+     String TAG  = "FRIDGE";
 
-    UserDBHelper userDBHelper;
-    IngredientDBHelper ingredientDBHelper;
-    User_IngreDBHelper user_ingreDBHelper;
+    DatabaseHelper databaseHelper;
+
+    private Boolean goBack = false;
 
     private Button profileButton;
     private Button addProductButton;
     private Button fridgeButton;
-    private Button fainaButton;
-    private Button carneButton;
     private Button fructeButton;
-    private Button condimenteButton;
+    private Button legumeButton;
     private Button lactateButton;
-    private Button mirodeniiButton;
-    private Button sosButton;
-    private Button pasteButton;
+    private Button carneButton;
+    private Button fainaButton;
+    private Button condimenteButton;
 
     public String NameUser;
     public String EmailUser;
-
-     ListView listView;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frigider);
-        listView = findViewById(R.id.list_users);
 
         Intent startingIntent = getIntent();
         NameUser = startingIntent.getStringExtra("name");
@@ -58,31 +55,24 @@ public class ListCategoryActivity extends AppCompatActivity {
 
         profileButton =  findViewById(R.id.profile_button);
         addProductButton = findViewById(R.id.addProducts_button);
-        fridgeButton = findViewById(R.id.frig_button);
 
-        fainaButton =  findViewById(R.id.faina_button);
-        carneButton = findViewById(R.id.carne_button);
         fructeButton = findViewById(R.id.fructe_button);
-
-        condimenteButton = findViewById(R.id.condimente_button);
+        legumeButton =  findViewById(R.id.legume_button);
         lactateButton = findViewById(R.id.lactate_button);
-        mirodeniiButton = findViewById(R.id.mirodenii_button);
-        sosButton = findViewById(R.id.sos_button);
-        pasteButton = findViewById(R.id.paste_button);
+        carneButton = findViewById(R.id.carne_button);
+        fainaButton =  findViewById(R.id.faina_button);
+        condimenteButton = findViewById(R.id.condimente_button);
 
-        fainaButton.setVisibility(View.GONE);
-        carneButton.setVisibility(View.GONE);
+
         fructeButton.setVisibility(View.GONE);
-
-        condimenteButton.setVisibility(View.GONE);
+        legumeButton.setVisibility(View.GONE);
         lactateButton.setVisibility(View.GONE);
-        mirodeniiButton.setVisibility(View.GONE);
-        sosButton.setVisibility(View.GONE);
-        pasteButton.setVisibility(View.GONE);
+        carneButton.setVisibility(View.GONE);
+        fainaButton.setVisibility(View.GONE);
+        condimenteButton.setVisibility(View.GONE);
 
-        userDBHelper = new UserDBHelper(this);
-        ingredientDBHelper = new IngredientDBHelper(this);
-        user_ingreDBHelper = new User_IngreDBHelper(this);
+
+        databaseHelper = new DatabaseHelper(this);
 
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,14 +96,826 @@ public class ListCategoryActivity extends AppCompatActivity {
             }
         });
 
-        fridgeButton.setOnClickListener(new View.OnClickListener() {
+
+        fainaButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v) {
-                Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
-                sendStuff.putExtra("name", NameUser);
-                sendStuff.putExtra("email",EmailUser);
-                startActivity(sendStuff);
-                finish();
+                setContentView(R.layout.activity_produs_categ);
+                final ListView seeProductByCateg = findViewById(R.id.list_products);
+                final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
+                final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
+
+                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
+                final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                final int[] Ingredient_id = new int[1];
+                Ingredient_id[0] = -1;
+
+                ArrayList<String> list_userIng_ids = null;
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "cereale") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "cereale");
+                }
+                if(!list_userIng_ids.isEmpty())
+                {
+                    ArrayList<String> list_Ing_ids = new ArrayList<>();
+                    for (String userIng_id : list_userIng_ids){
+                        list_Ing_ids.add(databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                    }
+
+                    if(!list_Ing_ids.isEmpty()) {
+                        Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                        ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                        for (String ingredient_id : list_Ing_ids) {
+                            Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                            if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                            }
+                        }
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                        if (!Ingrediente.isEmpty()) {
+                            ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                            seeProductByCateg.setAdapter(adapter);
+                        }
+
+//                     Selectarea unui produs din lista dupa categorie
+                        final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
+                        final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
+                        seeProductByCateg.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                Ingredient_id[0] = databaseHelper.getIngredientID(seeProductByCateg.getItemAtPosition(i).toString());
+                                Ingredient_id[0] = Integer.parseInt(finalList_Ing_ids.get(i));
+                                int User_Ingredient_Id = Integer.parseInt(finalList_userIng_ids.get(i));
+                                String DataExpiration = databaseHelper.GetProdusDataExpiration(User_Ingredient_Id);
+                                textViewDataExpiration.setText(DataExpiration);
+                                Log.d("Produs in frigide", "Produs selectat !" + seeProductByCateg.getItemAtPosition(i).toString());
+                                Log.d("Produs in frigide", "Data expirare !" + finalList_userIng_ids.get(i) + DataExpiration);
+                                Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
+
+                                final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
+
+                                deleteProdusButon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Log.d("From refrigerator", "Delete: " + NumeProdus);
+                                        databaseHelper.DeleteIngredient(User_id, Ingredient_id[0]);
+
+                                        ArrayList<String> list_userIng_ids = null;
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "cereale") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "cereale");
+                                        }
+                                        if(list_userIng_ids != null) {
+                                            ArrayList<String> list_Ing_ids = null;
+                                            int count = 0;
+                                            for (String userIng_id : list_userIng_ids) {
+                                                list_Ing_ids.add(count, databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                                                count++;
+                                            }
+
+                                            if(!list_Ing_ids.isEmpty()) {
+                                                Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                                                ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                                                for (String ingredient_id : list_Ing_ids) {
+                                                    Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                                                    if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                                        Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                                                    }
+                                                }
+                                                Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                                                if (!Ingrediente.isEmpty()) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                                                    seeProductByCateg.setAdapter(adapter);
+                                                }
+                                            }
+                                        } else {
+                                            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+                                        }
+                                    }
+                                });
+
+                                addToShoppingList.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (databaseHelper.AddIngredientInShoopingList(User_id, Ingredient_id[0]))
+                                            Log.d("From refrigerator", "Add to shopping list: " + NumeProdus);
+                                        else {
+                                            Log.d("From refrigerator", "Nu s-a putut adauga la shopping list: " + NumeProdus);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                }
+                else
+                    {
+                    Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                    sendStuff.putExtra("name", NameUser);
+                    sendStuff.putExtra("email",EmailUser);
+                    startActivity(sendStuff);
+                    finish();
+                }
+                goBack = true;
+
+
+            }
+        });
+
+        lactateButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                final ListView seeProductByCateg = findViewById(R.id.list_products);
+                final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
+                final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
+
+                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
+                final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                final int[] Ingredient_id = new int[1];
+                Ingredient_id[0] = -1;
+
+                ArrayList<String> list_userIng_ids = null;
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "lactate") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "lactate");
+                }
+                if(!list_userIng_ids.isEmpty())
+                {
+                    ArrayList<String> list_Ing_ids = new ArrayList<>();
+                    for (String userIng_id : list_userIng_ids){
+                        list_Ing_ids.add(databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                    }
+
+                    if(!list_Ing_ids.isEmpty()) {
+                        Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                        ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                        for (String ingredient_id : list_Ing_ids) {
+                            Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                            if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                            }
+                        }
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                        if (!Ingrediente.isEmpty()) {
+                            ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                            seeProductByCateg.setAdapter(adapter);
+                        }
+
+//                     Selectarea unui produs din lista dupa categorie
+                        final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
+                        final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
+                        seeProductByCateg.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                Ingredient_id[0] = databaseHelper.getIngredientID(seeProductByCateg.getItemAtPosition(i).toString());
+                                Ingredient_id[0] = Integer.parseInt(finalList_Ing_ids.get(i));
+                                int User_Ingredient_Id = Integer.parseInt(finalList_userIng_ids.get(i));
+                                String DataExpiration = databaseHelper.GetProdusDataExpiration(User_Ingredient_Id);
+                                textViewDataExpiration.setText(DataExpiration);
+                                Log.d("Produs in frigide", "Produs selectat !" + seeProductByCateg.getItemAtPosition(i).toString());
+                                Log.d("Produs in frigide", "Data expirare !" + finalList_userIng_ids.get(i) + DataExpiration);
+                                Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
+
+                                final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
+
+                                deleteProdusButon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Log.d("From refrigerator", "Delete: " + NumeProdus);
+                                        databaseHelper.DeleteIngredient(User_id, Ingredient_id[0]);
+
+                                        ArrayList<String> list_userIng_ids = null;
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "lactate") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "lactate");
+                                        }
+                                        if(list_userIng_ids != null) {
+                                            ArrayList<String> list_Ing_ids = null;
+                                            int count = 0;
+                                            for (String userIng_id : list_userIng_ids) {
+                                                list_Ing_ids.add(count, databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                                                count++;
+                                            }
+
+                                            if(!list_Ing_ids.isEmpty()) {
+                                                Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                                                ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                                                for (String ingredient_id : list_Ing_ids) {
+                                                    Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                                                    if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                                        Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                                                    }
+                                                }
+                                                Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                                                if (!Ingrediente.isEmpty()) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                                                    seeProductByCateg.setAdapter(adapter);
+                                                }
+                                            }
+                                        } else {
+                                            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+                                        }
+                                    }
+                                });
+
+                                addToShoppingList.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (databaseHelper.AddIngredientInShoopingList(User_id, Ingredient_id[0]))
+                                            Log.d("From refrigerator", "Add to shopping list: " + NumeProdus);
+                                        else {
+                                            Log.d("From refrigerator", "Nu s-a putut adauga la shopping list: " + NumeProdus);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                    sendStuff.putExtra("name", NameUser);
+                    sendStuff.putExtra("email",EmailUser);
+                    startActivity(sendStuff);
+                    finish();
+                }
+                goBack = true;
+
+
+            }
+        });
+
+        carneButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                final ListView seeProductByCateg = findViewById(R.id.list_products);
+                final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
+                final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
+
+                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
+                final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                final int[] Ingredient_id = new int[1];
+                Ingredient_id[0] = -1;
+
+                ArrayList<String> list_userIng_ids = null;
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "carne") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "carne");
+                }
+                if(!list_userIng_ids.isEmpty())
+                {
+                    ArrayList<String> list_Ing_ids = new ArrayList<>();
+                    for (String userIng_id : list_userIng_ids){
+                        list_Ing_ids.add(databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                    }
+
+                    if(!list_Ing_ids.isEmpty()) {
+                        Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                        ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                        for (String ingredient_id : list_Ing_ids) {
+                            Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                            if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                            }
+                        }
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                        if (!Ingrediente.isEmpty()) {
+                            ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                            seeProductByCateg.setAdapter(adapter);
+                        }
+
+//                     Selectarea unui produs din lista dupa categorie
+                        final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
+                        final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
+                        seeProductByCateg.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                Ingredient_id[0] = databaseHelper.getIngredientID(seeProductByCateg.getItemAtPosition(i).toString());
+                                Ingredient_id[0] = Integer.parseInt(finalList_Ing_ids.get(i));
+                                int User_Ingredient_Id = Integer.parseInt(finalList_userIng_ids.get(i));
+                                String DataExpiration = databaseHelper.GetProdusDataExpiration(User_Ingredient_Id);
+                                textViewDataExpiration.setText(DataExpiration);
+                                Log.d("Produs in frigide", "Produs selectat !" + seeProductByCateg.getItemAtPosition(i).toString());
+                                Log.d("Produs in frigide", "Data expirare !" + finalList_userIng_ids.get(i) + DataExpiration);
+                                Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
+
+                                final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
+
+                                deleteProdusButon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Log.d("From refrigerator", "Delete: " + NumeProdus);
+                                        databaseHelper.DeleteIngredient(User_id, Ingredient_id[0]);
+
+                                        ArrayList<String> list_userIng_ids = null;
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "carne") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "carne");
+                                        }
+                                        if(list_userIng_ids != null) {
+                                            ArrayList<String> list_Ing_ids = new ArrayList<>();
+                                            int count = 0;
+                                            for (String userIng_id : list_userIng_ids) {
+                                                list_Ing_ids.add(count, databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                                                count++;
+                                            }
+
+                                            if(!list_Ing_ids.isEmpty()) {
+                                                Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                                                ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                                                for (String ingredient_id : list_Ing_ids) {
+                                                    Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                                                    if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                                        Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                                                    }
+                                                }
+                                                Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                                                if (!Ingrediente.isEmpty()) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                                                    seeProductByCateg.setAdapter(adapter);
+                                                }
+                                            }
+                                        } else {
+                                            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+                                        }
+                                    }
+                                });
+
+                                addToShoppingList.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (databaseHelper.AddIngredientInShoopingList(User_id, Ingredient_id[0]))
+                                            Log.d("From refrigerator", "Add to shopping list: " + NumeProdus);
+                                        else {
+                                            Log.d("From refrigerator", "Nu s-a putut adauga la shopping list: " + NumeProdus);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                    sendStuff.putExtra("name", NameUser);
+                    sendStuff.putExtra("email",EmailUser);
+                    startActivity(sendStuff);
+                    finish();
+                }
+                goBack = true;
+
+
+            }
+        });
+
+        fructeButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                final ListView seeProductByCateg = findViewById(R.id.list_products);
+                final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
+                final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
+
+                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
+                final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                final int[] Ingredient_id = new int[1];
+                Ingredient_id[0] = -1;
+
+                ArrayList<String> list_userIng_ids = null;
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "fruct") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "fruct");
+                }
+                if(!list_userIng_ids.isEmpty())
+                {
+                    ArrayList<String> list_Ing_ids = new ArrayList<>();
+                    for (String userIng_id : list_userIng_ids){
+                        list_Ing_ids.add(databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                    }
+
+                    if(!list_Ing_ids.isEmpty()) {
+                        Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                        ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                        for (String ingredient_id : list_Ing_ids) {
+                            Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                            if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                            }
+                        }
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                        if (!Ingrediente.isEmpty()) {
+                            ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                            seeProductByCateg.setAdapter(adapter);
+                        }
+
+//                     Selectarea unui produs din lista dupa categorie
+                        final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
+                        final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
+                        seeProductByCateg.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                Ingredient_id[0] = databaseHelper.getIngredientID(seeProductByCateg.getItemAtPosition(i).toString());
+                                Ingredient_id[0] = Integer.parseInt(finalList_Ing_ids.get(i));
+                                int User_Ingredient_Id = Integer.parseInt(finalList_userIng_ids.get(i));
+                                String DataExpiration = databaseHelper.GetProdusDataExpiration(User_Ingredient_Id);
+                                textViewDataExpiration.setText(DataExpiration);
+                                Log.d("Produs in frigide", "Produs selectat !" + seeProductByCateg.getItemAtPosition(i).toString());
+                                Log.d("Produs in frigide", "Data expirare !" + finalList_userIng_ids.get(i) + DataExpiration);
+                                Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
+
+                                final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
+
+                                deleteProdusButon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Log.d("From refrigerator", "Delete: " + NumeProdus);
+                                        databaseHelper.DeleteIngredient(User_id, Ingredient_id[0]);
+
+                                        ArrayList<String> list_userIng_ids = null;
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "fruct") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "fruct");
+                                        }
+                                        if(list_userIng_ids != null) {
+                                            ArrayList<String> list_Ing_ids = null;
+                                            int count = 0;
+                                            for (String userIng_id : list_userIng_ids) {
+                                                list_Ing_ids.add(count, databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                                                count++;
+                                            }
+
+                                            if(!list_Ing_ids.isEmpty()) {
+                                                Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                                                ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                                                for (String ingredient_id : list_Ing_ids) {
+                                                    Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                                                    if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                                        Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                                                    }
+                                                }
+                                                Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                                                if (!Ingrediente.isEmpty()) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                                                    seeProductByCateg.setAdapter(adapter);
+                                                }
+                                            }
+                                        } else {
+                                            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+                                        }
+                                    }
+                                });
+
+                                addToShoppingList.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (databaseHelper.AddIngredientInShoopingList(User_id, Ingredient_id[0]))
+                                            Log.d("From refrigerator", "Add to shopping list: " + NumeProdus);
+                                        else {
+                                            Log.d("From refrigerator", "Nu s-a putut adauga la shopping list: " + NumeProdus);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                    sendStuff.putExtra("name", NameUser);
+                    sendStuff.putExtra("email",EmailUser);
+                    startActivity(sendStuff);
+                    finish();
+                }
+                goBack = true;
+
+
+            }
+        });
+
+        legumeButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                final ListView seeProductByCateg = findViewById(R.id.list_products);
+                final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
+                final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
+
+                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
+                final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                final int[] Ingredient_id = new int[1];
+                Ingredient_id[0] = -1;
+
+                ArrayList<String> list_userIng_ids = null;
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "legume") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "legume");
+                }
+                if(!list_userIng_ids.isEmpty())
+                {
+                    ArrayList<String> list_Ing_ids = new ArrayList<>();
+                    for (String userIng_id : list_userIng_ids){
+                        list_Ing_ids.add(databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                    }
+
+                    if(!list_Ing_ids.isEmpty()) {
+                        Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                        ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                        for (String ingredient_id : list_Ing_ids) {
+                            Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                            if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                            }
+                        }
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                        if (!Ingrediente.isEmpty()) {
+                            ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                            seeProductByCateg.setAdapter(adapter);
+                        }
+
+//                     Selectarea unui produs din lista dupa categorie
+                        final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
+                        final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
+                        seeProductByCateg.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                Ingredient_id[0] = databaseHelper.getIngredientID(seeProductByCateg.getItemAtPosition(i).toString());
+                                Ingredient_id[0] = Integer.parseInt(finalList_Ing_ids.get(i));
+                                int User_Ingredient_Id = Integer.parseInt(finalList_userIng_ids.get(i));
+                                String DataExpiration = databaseHelper.GetProdusDataExpiration(User_Ingredient_Id);
+                                textViewDataExpiration.setText(DataExpiration);
+                                Log.d("Produs in frigide", "Produs selectat !" + seeProductByCateg.getItemAtPosition(i).toString());
+                                Log.d("Produs in frigide", "Data expirare !" + finalList_userIng_ids.get(i) + DataExpiration);
+                                Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
+
+                                final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
+
+                                deleteProdusButon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Log.d("From refrigerator", "Delete: " + NumeProdus);
+                                        databaseHelper.DeleteIngredient(User_id, Ingredient_id[0]);
+
+                                        ArrayList<String> list_userIng_ids = null;
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "legume") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "legume");
+                                        }
+                                        if(list_userIng_ids != null) {
+                                            ArrayList<String> list_Ing_ids = null;
+                                            int count = 0;
+                                            for (String userIng_id : list_userIng_ids) {
+                                                list_Ing_ids.add(count, databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                                                count++;
+                                            }
+
+                                            if(!list_Ing_ids.isEmpty()) {
+                                                Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                                                ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                                                for (String ingredient_id : list_Ing_ids) {
+                                                    Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                                                    if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                                        Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                                                    }
+                                                }
+                                                Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                                                if (!Ingrediente.isEmpty()) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                                                    seeProductByCateg.setAdapter(adapter);
+                                                }
+                                            }
+                                        } else {
+                                            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+                                        }
+                                    }
+                                });
+
+                                addToShoppingList.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (databaseHelper.AddIngredientInShoopingList(User_id, Ingredient_id[0]))
+                                            Log.d("From refrigerator", "Add to shopping list: " + NumeProdus);
+                                        else {
+                                            Log.d("From refrigerator", "Nu s-a putut adauga la shopping list: " + NumeProdus);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                    sendStuff.putExtra("name", NameUser);
+                    sendStuff.putExtra("email",EmailUser);
+                    startActivity(sendStuff);
+                    finish();
+                }
+                goBack = true;
+
+
+            }
+        });
+
+        condimenteButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                setContentView(R.layout.activity_produs_categ);
+                final ListView seeProductByCateg = findViewById(R.id.list_products);
+                final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
+                final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
+
+                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
+                final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                final int[] Ingredient_id = new int[1];
+                Ingredient_id[0] = -1;
+
+                ArrayList<String> list_userIng_ids = null;
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "condiment") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "condiment");
+                }
+                if(!list_userIng_ids.isEmpty())
+                {
+                    ArrayList<String> list_Ing_ids = new ArrayList<>();
+                    for (String userIng_id : list_userIng_ids){
+                        list_Ing_ids.add(databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                    }
+
+                    if(!list_Ing_ids.isEmpty()) {
+                        Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                        ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                        for (String ingredient_id : list_Ing_ids) {
+                            Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                            if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                            }
+                        }
+                        Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                        if (!Ingrediente.isEmpty()) {
+                            ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                            seeProductByCateg.setAdapter(adapter);
+                        }
+
+//                     Selectarea unui produs din lista dupa categorie
+                        final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
+                        final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
+                        seeProductByCateg.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                Ingredient_id[0] = databaseHelper.getIngredientID(seeProductByCateg.getItemAtPosition(i).toString());
+                                Ingredient_id[0] = Integer.parseInt(finalList_Ing_ids.get(i));
+                                int User_Ingredient_Id = Integer.parseInt(finalList_userIng_ids.get(i));
+                                String DataExpiration = databaseHelper.GetProdusDataExpiration(User_Ingredient_Id);
+                                textViewDataExpiration.setText(DataExpiration);
+                                Log.d("Produs in frigide", "Produs selectat !" + seeProductByCateg.getItemAtPosition(i).toString());
+                                Log.d("Produs in frigide", "Data expirare !" + finalList_userIng_ids.get(i) + DataExpiration);
+                                Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
+
+                                final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
+
+                                deleteProdusButon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Log.d("From refrigerator", "Delete: " + NumeProdus);
+                                        databaseHelper.DeleteIngredient(User_id, Ingredient_id[0]);
+
+                                        ArrayList<String> list_userIng_ids = null;
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "condiment") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "condiment");
+                                        }
+                                        if(list_userIng_ids != null) {
+                                            ArrayList<String> list_Ing_ids = null;
+                                            int count = 0;
+                                            for (String userIng_id : list_userIng_ids) {
+                                                list_Ing_ids.add(count, databaseHelper.GetIngIdByUserIngId(Integer.parseInt(userIng_id)));
+                                                count++;
+                                            }
+
+                                            if(!list_Ing_ids.isEmpty()) {
+                                                Log.d("Produs in frigide", "Id ingredient !" + list_Ing_ids);
+                                                ArrayList<String> Ingrediente = new  ArrayList<String>();
+
+                                                for (String ingredient_id : list_Ing_ids) {
+                                                    Ingrediente.add(databaseHelper.getIngredientById(ingredient_id));
+                                                    if(databaseHelper.getIngredientById(ingredient_id) == null){
+                                                        Log.d("From refrigerator", "Null produs: " + ingredient_id);
+                                                    }
+                                                }
+                                                Log.d("From refrigerator", "Produse: " + Ingrediente);
+
+                                                if (!Ingrediente.isEmpty()) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(ListCategoryActivity.this, android.R.layout.simple_list_item_1, Ingrediente);
+                                                    seeProductByCateg.setAdapter(adapter);
+                                                }
+                                            }
+                                        } else {
+                                            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+                                        }
+                                    }
+                                });
+
+                                addToShoppingList.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (databaseHelper.AddIngredientInShoopingList(User_id, Ingredient_id[0]))
+                                            Log.d("From refrigerator", "Add to shopping list: " + NumeProdus);
+                                        else {
+                                            Log.d("From refrigerator", "Nu s-a putut adauga la shopping list: " + NumeProdus);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+                    sendStuff.putExtra("name", NameUser);
+                    sendStuff.putExtra("email",EmailUser);
+                    startActivity(sendStuff);
+                    finish();
+                }
+                goBack = true;
+
+
             }
         });
 
@@ -124,57 +926,55 @@ public class ListCategoryActivity extends AppCompatActivity {
 
         Log.d(TAG, "populateListUsers: Displaying data in the ListView");
 
-        ArrayList<String> listData ;
-        if(user_ingreDBHelper.getData() != null) {
-            listData = user_ingreDBHelper.getData();
-        }
-        else
-            listData = ingredientDBHelper.getData();
+//        UserDBHelper userDBHelper = new UserDBHelper(ListCategoryActivity.this);
+        DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+        int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+        ArrayList<String> listData = null;
 
-        for ( String categ : listData) {
-            Log.d(TAG, "Categ:" + categ);
-            if(categ.equals(" carne")) {
-                carneButton.setVisibility(View.VISIBLE);
-                carneButton.setEnabled(true);
-            }
-            else if(categ.equals(" faina")) {
-                fainaButton.setVisibility(View.VISIBLE);
-                fainaButton.setEnabled(true);
-            }
-            else if(categ.equals(" fruct")) {
-                fructeButton.setVisibility(View.VISIBLE);
-                fructeButton.setEnabled(true);
-            }
-            else if(categ.equals(" lactate")) {
-                lactateButton.setVisibility(View.VISIBLE);
-                lactateButton.setEnabled(true);
-            }
-            else if(categ.equals(" condiment")) {
-                condimenteButton.setVisibility(View.VISIBLE);
-                condimenteButton.setEnabled(true);
-            }
-            else if(categ.equals(" mirodenii")) {
-                mirodeniiButton.setVisibility(View.VISIBLE);
-                mirodeniiButton.setEnabled(true);
-            }
-            else if(categ.equals("sos")) {
-                sosButton.setVisibility(View.VISIBLE);
-                sosButton.setEnabled(true);
-            }
-            else if(categ.equals(" paste")) {
-                pasteButton.setVisibility(View.VISIBLE);
-                pasteButton.setEnabled(true);
+        Log.d(TAG," "+User_id);
+        if (databaseHelper.getCategoriesFromUser(User_id + "") != null) {
+            listData = databaseHelper.getCategoriesFromUser(User_id + "");
+            if (listData != null) {
+                for (String categ : listData) {
+                    Log.d(TAG, "Categ:" + categ);
+                    if (categ.equals("carne")) {
+                        carneButton.setVisibility(View.VISIBLE);
+                        carneButton.setEnabled(true);
+                    } else if (categ.equals("cereale")) {
+                        fainaButton.setVisibility(View.VISIBLE);
+                        fainaButton.setEnabled(true);
+                    } else if (categ.equals("fruct")) {
+                        fructeButton.setVisibility(View.VISIBLE);
+                        fructeButton.setEnabled(true);
+                    } else if (categ.equals("lactate")) {
+                        lactateButton.setVisibility(View.VISIBLE);
+                        lactateButton.setEnabled(true);
+                    } else if (categ.equals("condiment")) {
+                        condimenteButton.setVisibility(View.VISIBLE);
+                        condimenteButton.setEnabled(true);
+                    }else if (categ.equals("legume")) {
+                        legumeButton.setVisibility(View.VISIBLE);
+                        legumeButton.setEnabled(true);
+                    }
+                }
+            } else {
+                Log.d(TAG, "Lista este goala !");
             }
         }
+    }
 
-//
-//        if(!listData.isEmpty()) {
-//            Log.d(TAG, "Lista este afisata !");
-//            ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
-//            listView.setAdapter(adapter);
-//        }else
-//        {
-//            Log.d(TAG, "Lista este goala !");
-//        }
+    @Override
+    public void onBackPressed() {
+        if (goBack == true) {
+            Log.d("Go back:", "YES");
+            super.onBackPressed();
+            Intent sendStuff = new Intent(ListCategoryActivity.this, ListCategoryActivity.class);
+            sendStuff.putExtra("name", NameUser);
+            sendStuff.putExtra("email",EmailUser);
+            startActivity(sendStuff);
+            finish();
+        } else {
+            Log.d("Go back:", "NO");
+        }
     }
 }

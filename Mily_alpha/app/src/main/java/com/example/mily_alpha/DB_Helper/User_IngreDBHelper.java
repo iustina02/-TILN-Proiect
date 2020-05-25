@@ -14,7 +14,7 @@ public class User_IngreDBHelper extends SQLiteOpenHelper {
 
     private static  final String TAG = "DatabaseHelper";
     public static final String DATABASE_NAME = "AlphaMily.db";
-    private static final int  DATABASE_VERSION = 4;
+    private static final int  DATABASE_VERSION = 10;
     public static final String TABLE_NAME = "User_Ingredient_table";
     public static final String COL_0 = "User_Ingredient_id";
     public static final String COL_1 = "User_id";
@@ -76,10 +76,10 @@ public class User_IngreDBHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public ArrayList<String> getData(){
+    public ArrayList<String> getCategoriesFromUser(String User_id){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT DISTINCT Categorie FROM " + TABLE_NAME;
-        Cursor data = db.rawQuery(query,null);
+
+        Cursor data = db.rawQuery("select Ingredient_id from "+TABLE_NAME +" where User_id = ?", new String[]{User_id},null);
 
         ArrayList<String> listData = new ArrayList<>();
         while(data.moveToNext()){
@@ -91,4 +91,18 @@ public class User_IngreDBHelper extends SQLiteOpenHelper {
             return null;
     }
 
+    public ArrayList<String> GetProdusByCategAndUser(int UserID, String Categorie){
+        ArrayList<String> listData = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select Ingredient_id from "+TABLE_NAME +" where User_id = ? and Categorie = ? ", new String[]{UserID+"", Categorie},null);
+
+        while(data.moveToNext()){
+            listData.add(data.getString(0));
+        }
+        if(!listData.isEmpty()) {
+            return listData;
+        }
+        else
+            return null;
+    }
 }

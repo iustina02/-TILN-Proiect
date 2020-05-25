@@ -10,12 +10,15 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,6 +30,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -36,9 +40,9 @@ import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
-import com.example.mily_alpha.DB_Helper.IngredientDBHelper;
-import com.example.mily_alpha.DB_Helper.UserDBHelper;
-import com.example.mily_alpha.DB_Helper.User_IngreDBHelper;
+import com.chaquo.python.android.AndroidPlatform;
+//import com.chaquo.python.android.PyApplication;
+import com.example.mily_alpha.DB_Helper.DatabaseHelper;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
@@ -46,6 +50,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -64,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
     private Button fridgeButton;
     private Button editButton;
 
+    private DatePickerDialog.OnDateSetListener mDateSetListener;
+
+    final DatabaseHelper databaseHelper = new DatabaseHelper(this);
+
     public String NameUser;
     public String EmailUser;
 
@@ -81,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setSubtitle("Click Image button  to insert Image");
+        actionBar.setSubtitle("Click Image button to insert Image");
 
         Intent startingIntent = getIntent();
         NameUser = startingIntent.getStringExtra("name");
@@ -128,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         fridgeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
                 sendStuff.putExtra("name", NameUser);
                 sendStuff.putExtra("email",EmailUser);
@@ -135,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+
 
 
         if(toast!=null)
@@ -283,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
         if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_PICK_GALLERY_CODE) {
                 //got image from gallery now crop
@@ -312,10 +325,13 @@ public class MainActivity extends AppCompatActivity {
 
                 // Get text from image
                 if (!recognizer.isOperational()) {
-                    Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-                } else
-                    {
-                    Python py =  Python.getInstance();
+                    Toast.makeText(this, "Error: Recognizer is not operational!", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    if (! Python.isStarted()) {
+                        Python.start(new AndroidPlatform(MainActivity.this));
+                    }
+                    Python py = Python.getInstance();
                     PyObject pyf = py.getModule("product_Categories");//name of the python file
 
                     Frame frame = new Frame.Builder().setBitmap(bitmap).build();
@@ -326,16 +342,16 @@ public class MainActivity extends AppCompatActivity {
                     // Get just food products from image
                     for (int i = 0; i < items.size(); i++) {
                         TextBlock myItem = items.valueAt(i);
-                        PyObject obj = pyf.callAttr("test",myItem.getValue()); // definition name
-                        if(!obj.equals("Detalii")) {
+                        PyObject obj = pyf.callAttr("test", myItem.getValue()); // definition name
+                        if (!obj.equals("Detalii")) {
                             sb.append(obj.toString());
                         }
                     }
                     //set text to edit  text
                     String Categorie = "";
                     String[] list_product = sb.toString().split(",");
-                    for(String product : list_product){
-                        product =  product.replace("{","").replace("'","").replace("}","");
+                    for (String product : list_product) {
+                        product = product.replace("{", "").replace("'", "").replace("}", "");
                         Categorie += product + "\n\n";
                         Log.w("Verify String: ", product);
                     }
@@ -347,150 +363,194 @@ public class MainActivity extends AppCompatActivity {
                     final ListView alteCategListView = findViewById(R.id.alteCategListView);
                     alteCategListView.setVisibility(View.GONE);
                     final Button alteCategButton = findViewById(R.id.alteCateg_button);
-                    final Button nextProductButton =  findViewById(R.id.nextButton);
+                    final Button nextProductButton = findViewById(R.id.nextButton);
                     final Button addProductButton = findViewById(R.id.addButton);
-                    final EditText dataExpirareText = findViewById(R.id.dataExpirareText);
+                    final TextView dataExpirareText = findViewById(R.id.dataExpirareText);
+                    final Button addDataExpirareButton = findViewById(R.id.addDateButton);
 
                     final String[] productsAll = Categorie.split("\n");
                     final List<String> productsName = new ArrayList<String>();
                     final List<String> productsCateg = new ArrayList<String>();
 
                     // From python exec to : nume produse + categorii produse
-                    for(String prodAll : productsAll){
+                    for (String prodAll : productsAll) {
                         String[] produ = prodAll.split(":");
-                        if(produ[0] != " " && produ[0] != "\n" && produ[0]!= null && produ[0]!="") {
+                        if (produ[0] != " " && produ[0] != "\n" && produ[0] != null && produ[0] != "") {
                             productsName.add(produ[0]);
-                            if(produ.length > 1)
+                            if (produ.length > 1)
                                 productsCateg.add(produ[1]);
                         }
                     }
                     Log.d("Products", productsName.toString());
 
                     // Clasa counter pentru afisarea pe rand produselor
-                     class Counter{
+                    class Counter {
                         int counter = 0;
-                     }
+                    }
 
                     // Clasa pentru salvarea detaliilor despre produse
-                    class ProdusDetail{
+                    class ProdusDetail {
                         String numeProdus = "";
                         String categorieProdus = "";
-                        String dataExpirareProdus = "Nicio data adaugata!";
+                        String dataExpirareProdus = "Nici o data adaugata!";
                     }
 
                     final Counter count = new Counter();
                     final ProdusDetail produsDetail = new ProdusDetail();
 
-                    produsDetail.numeProdus = productsName.get(count.counter);
-                    Log.d("Nume", produsDetail.numeProdus);
-                    productTextView.setText(produsDetail.numeProdus);
+                    if (productsName.size() > 0) {
+                        produsDetail.numeProdus = productsName.get(count.counter);
+                        Log.d("Nume", produsDetail.numeProdus);
+                        productTextView.setText(produsDetail.numeProdus);
 
-                    // Afisarea listei generate de rowordnet a categoriilor sugerate
-                    String[] listData = productsCateg.get(count.counter).split(";");
-                    if(listData.length > 0 ) {
-                        ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
-                        productListView.setAdapter(adapter);
-                        count.counter++;
-                    }
-
-                    // Afisarea listei cu toate categoriile disponibile
-                    String[] alteCategorii = {"legume", "fructe", "radacinoase", "lactate", "faina", "mirodenii"};
-                    if(alteCategorii.length > 0 ) {
-                        ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, alteCategorii);
-                        alteCategListView.setAdapter(adapter);
-                    }
-
-                    // DB user -> ingredients
-                    final UserDBHelper userDBHelper = new UserDBHelper(this);
-                    final IngredientDBHelper ingredientDBHelper = new IngredientDBHelper(this);
-                    final User_IngreDBHelper user_ingreDBHelper = new User_IngreDBHelper(this);
-
-                    final int user_id = userDBHelper.getUserID(EmailUser, NameUser);
-
-                    // Selectarea unei categorii din lista produsa
-                    productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            view.setSelected(true);
-
-                            produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString();
-
-                            Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
-                            Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
+                        // Afisarea listei generate de rowordnet a categoriilor sugerate
+                        String[] listData = productsCateg.get(count.counter).split(";");
+                        if (listData.length > 0) {
+                            ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
+                            productListView.setAdapter(adapter);
+                            count.counter++;
                         }
-                    });
 
-                    //Selectarea unei categorii din lista totala
-                    alteCategListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            view.setSelected(true);
-
-                            produsDetail.categorieProdus = alteCategListView.getItemAtPosition(position).toString();
-
-                            Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
-                            Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
+                        // Afisarea listei cu toate categoriile disponibile
+                        String[] alteCategorii = {"legume", "fruct", "lactate", "carne", "cereale","condiment"};
+                        if (alteCategorii.length > 0) {
+                            ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, alteCategorii);
+                            alteCategListView.setAdapter(adapter);
                         }
-                    });
 
-                    // Afisarea listei complete cu butonul alteCategButton
-                    alteCategButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            alteCategListView.setVisibility(View.VISIBLE);
-                        }
-                    });
+                        final int user_id = databaseHelper.getUserID(EmailUser, NameUser);
 
-                    // Adaugarea in baza de date a ingredientelor in legatura cu utilizatorul
-                    addProductButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if(!produsDetail.numeProdus.equals("") && !produsDetail.categorieProdus.equals(""))
-                            {
-                                if(!dataExpirareText.getText().toString().equals("")){
-                                    Log.d("Data Expirare", dataExpirareText.getText().toString());
-                                    produsDetail.dataExpirareProdus = dataExpirareText.getText().toString();
+                        // Selectarea unei categorii din lista produsa
+                        productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                view.setSelected(true);
+
+                                produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString().replace(" ", "");
+                                if(produsDetail.categorieProdus.equals("faina") || produsDetail.categorieProdus.equals("paste") ){
+                                    produsDetail.categorieProdus = "cereale";
                                 }
-                                if(ingredientDBHelper.addIngredient(produsDetail.numeProdus)){
-                                    int ingredient_id = ingredientDBHelper.getIngredientID(produsDetail.numeProdus);
-                                    if(user_ingreDBHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
-                                        Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
-                                    else
-                                        Log.d("User_Ingredient", "Error 1!");
+                                if(produsDetail.categorieProdus.equals("rădăcinoase")){
+                                    produsDetail.categorieProdus = "legume";
                                 }
-                                else {
-                                    int ingredient_id = ingredientDBHelper.getIngredientID(produsDetail.numeProdus);
-                                    if(user_ingreDBHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
-                                        Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
-                                    else
-                                        Log.d("User_Ingredient", "Error 1!");
+                                if(produsDetail.categorieProdus.equals("mirodenie")){
+                                    produsDetail.categorieProdus = "condiment";
                                 }
 
-                                //Note gone just invisible and diseable pls
-                                addProductButton.setEnabled(false);
-                                addProductButton.setVisibility(View.INVISIBLE);
-                            } else{
-                                Toast.makeText(MainActivity.this, "Selecteaza o categorie!", Toast.LENGTH_SHORT).show();
+                                Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
+                                Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
                             }
-                        }
-                    });
+                        });
 
-                    //Afisarea urmatorului produs din lista cu categoriile acestuia
-                    nextProductButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
+                        //Selectarea unei categorii din lista totala
+                        alteCategListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                view.setSelected(true);
+
+                                produsDetail.categorieProdus = alteCategListView.getItemAtPosition(position).toString().replace(" ", "");
+                                ;
+
+                                Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
+                                Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        addDataExpirareButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
                             public void onClick(View v) {
+                                Calendar calendar = Calendar.getInstance();
+                                int year = calendar.get(Calendar.YEAR);
+                                int month = calendar.get(Calendar.MONTH);
+                                int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                                DatePickerDialog dialog = new DatePickerDialog(
+                                        MainActivity.this,
+                                        android.R.style.Theme_DeviceDefault_Dialog_MinWidth,
+                                        mDateSetListener,
+                                        year, month, day);
+                                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                dialog.show();
+                            }
+                        });
+
+                        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                Log.d("DateTime: ", year + "/" + month + "/" + dayOfMonth);
+                                dataExpirareText.setText(dayOfMonth + "/" + month + "/" + year);
+                            }
+                        };
+
+                        // Afisarea listei complete cu butonul alteCategButton
+                        alteCategButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                alteCategListView.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+                        // Adaugarea in baza de date a ingredientelor in legatura cu utilizatorul
+                        addProductButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (!produsDetail.numeProdus.equals("") && !produsDetail.categorieProdus.equals("")) {
+                                    if (!dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ")) {
+                                        Log.d("Data Expirare", dataExpirareText.getText().toString());
+                                        produsDetail.dataExpirareProdus = dataExpirareText.getText().toString();
+                                    }
+                                    if (databaseHelper.addIngredient(produsDetail.numeProdus)) {
+                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
+                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
+                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
+                                        else
+                                            Log.d("User_Ingredient", "Error 1!");
+                                    } else {
+                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
+                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
+                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
+                                        else
+                                            Log.d("User_Ingredient", "Error 1!");
+                                    }
+
+                                    //Note gone just invisible and diseable pls
+                                    addProductButton.setEnabled(false);
+                                    addProductButton.setVisibility(View.INVISIBLE);
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Selecteaza o categorie!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                        //Afisarea urmatorului produs din lista cu categoriile acestuia
+                        nextProductButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dataExpirareText.setText(" Selecteaza data de expirare ");
+                                produsDetail.dataExpirareProdus = "Nici o data adaugata!";
                                 addProductButton.setEnabled(true);
                                 addProductButton.setVisibility(View.VISIBLE);
-                                dataExpirareText.setText("");
 
-                                if(productsName.size() > count.counter)
+                                if (productsName.size() > count.counter)
                                     produsDetail.numeProdus = productsName.get(count.counter);
 
-                                if(count.counter < productsName.size()){
+                                if(productsName.size() == 1){
+                                    productTextView.setText(productsName.get(0));
+
+                                    String[] listData = productsCateg.get(count.counter).split(";");
+                                    if (listData.length > 0) {
+                                        ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
+                                        productListView.setAdapter(adapter);
+                                    }
+
+                                    count.counter++;
+                                }
+                                else if (count.counter < productsName.size() -1)
+                                {
                                     productTextView.setText(productsName.get(count.counter));
 
                                     String[] listData = productsCateg.get(count.counter).split(";");
-                                    if(listData.length > 0 ) {
+                                    if (listData.length > 0) {
                                         ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
                                         productListView.setAdapter(adapter);
                                     }
@@ -498,19 +558,50 @@ public class MainActivity extends AppCompatActivity {
                                     count.counter++;
 
                                     Log.d("Neeeeext", "Lista este afisata !");
-                                }
-                                else if(count.counter == productsName.size()){
-                                    startActivity(new Intent(MainActivity.this, ListCategoryActivity.class));
+                                } else if (count.counter == productsName.size() -1)
+                                {
+                                    Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
+                                    sendStuff.putExtra("name", NameUser);
+                                    sendStuff.putExtra("email", EmailUser);
+                                    startActivity(sendStuff);
                                     finish();
                                 }
                             }
-                    });
+                        });
+                    }
+                    else
+                    {
+                        Intent sendStuff = new Intent(MainActivity.this, MainActivity.class);
+                        sendStuff.putExtra("name", NameUser);
+                        sendStuff.putExtra("email", EmailUser);
+                        startActivity(sendStuff);
+                        finish();
+                        Toast.makeText(this, "Nu s-au gasit produse!", Toast.LENGTH_SHORT).show();
+
+                    }
                 }
+
             }else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 //if there is any error show it
                 Exception error = result.getError();
                 Toast.makeText(this, "" + error, Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private Boolean goBack = false;
+    @Override
+    public void onBackPressed() {
+        if (goBack == true) {
+            Log.d("Go back:", "YES");
+            super.onBackPressed();
+            Intent sendStuff = new Intent(MainActivity.this, ProfileActivity.class);
+            sendStuff.putExtra("name", NameUser);
+            sendStuff.putExtra("email",EmailUser);
+            startActivity(sendStuff);
+            finish();
+        } else {
+            Log.d("Go back:", "NO");
         }
     }
 }

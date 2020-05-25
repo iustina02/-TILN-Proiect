@@ -1,8 +1,4 @@
 import rowordnet
-# import unidecode
-
-def tests(arg):
-    return ("\n Text Block: " + arg +"\n");
 
 def test(arg1):
     wn =  rowordnet.RoWordNet()
