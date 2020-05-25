@@ -179,6 +179,8 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
 
             Picasso.get().load(account.getPhotoUrl()).placeholder(R.mipmap.ic_launcher).into(profileImage);
         }else{
+            Toast.makeText(ProfileActivity.this,"Log in Failed", Toast.LENGTH_SHORT).show();
+            Log.w("Log in String: failed! ","Logged in failed!");
            gotoMainActivity();
         }
     }
