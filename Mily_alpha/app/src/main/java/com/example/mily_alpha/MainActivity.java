@@ -331,6 +331,19 @@ public class MainActivity extends AppCompatActivity {
                     if (! Python.isStarted()) {
                         Python.start(new AndroidPlatform(MainActivity.this));
                     }
+
+                    setContentView(R.layout.activity_editproduct);
+                    ActionBar actionBar = getSupportActionBar();
+                    final EditText productTextView = findViewById(R.id.ProdusTextView);
+                    final ListView productListView = findViewById(R.id.produsListView);
+                    final ListView alteCategListView = findViewById(R.id.alteCategListView);
+                    alteCategListView.setVisibility(View.GONE);
+                    final Button alteCategButton = findViewById(R.id.alteCateg_button);
+                    final Button nextProductButton = findViewById(R.id.nextButton);
+                    final Button addProductButton = findViewById(R.id.addButton);
+                    final TextView dataExpirareText = findViewById(R.id.dataExpirareText);
+                    final Button addDataExpirareButton = findViewById(R.id.addDateButton);
+
                     Python py = Python.getInstance();
                     PyObject pyf = py.getModule("product_Categories");//name of the python file
 
@@ -356,17 +369,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.w("Verify String: ", product);
                     }
 
-                    setContentView(R.layout.activity_editproduct);
-                    ActionBar actionBar = getSupportActionBar();
-                    final EditText productTextView = findViewById(R.id.ProdusTextView);
-                    final ListView productListView = findViewById(R.id.produsListView);
-                    final ListView alteCategListView = findViewById(R.id.alteCategListView);
-                    alteCategListView.setVisibility(View.GONE);
-                    final Button alteCategButton = findViewById(R.id.alteCateg_button);
-                    final Button nextProductButton = findViewById(R.id.nextButton);
-                    final Button addProductButton = findViewById(R.id.addButton);
-                    final TextView dataExpirareText = findViewById(R.id.dataExpirareText);
-                    final Button addDataExpirareButton = findViewById(R.id.addDateButton);
 
                     final String[] productsAll = Categorie.split("\n");
                     final List<String> productsName = new ArrayList<String>();
@@ -412,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         // Afisarea listei cu toate categoriile disponibile
-                        String[] alteCategorii = {"legume", "fruct", "lactate", "carne", "cereale","condiment"};
+                        String[] alteCategorii = {"legume", "fruct", "lactate", "carne", "cereale","condiment","gustari"};
                         if (alteCategorii.length > 0) {
                             ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, alteCategorii);
                             alteCategListView.setAdapter(adapter);
@@ -436,6 +438,10 @@ public class MainActivity extends AppCompatActivity {
                                 if(produsDetail.categorieProdus.equals("mirodenie")){
                                     produsDetail.categorieProdus = "condiment";
                                 }
+                                if(produsDetail.categorieProdus.equals("suc") || produsDetail.categorieProdus.equals("alcool")){
+                                    produsDetail.categorieProdus = "gustari";
+                                }
+
 
                                 Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
                                 Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
@@ -477,8 +483,10 @@ public class MainActivity extends AppCompatActivity {
                         mDateSetListener = new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                Log.d("DateTime: ", year + "/" + month + "/" + dayOfMonth);
-                                dataExpirareText.setText(dayOfMonth + "/" + month + "/" + year);
+                                month += 1;
+                                String luna = "0"+month;
+                                Log.d("DateTime: ", year + "/" + luna + "/" + dayOfMonth);
+                                dataExpirareText.setText(year + "/" + luna + "/" + dayOfMonth);
                             }
                         };
 
@@ -535,15 +543,17 @@ public class MainActivity extends AppCompatActivity {
                                     produsDetail.numeProdus = productsName.get(count.counter);
 
                                 if(productsName.size() == 1){
-                                    productTextView.setText(productsName.get(0));
+                                    if(count.counter != 1) {
+                                        productTextView.setText(productsName.get(0));
 
-                                    String[] listData = productsCateg.get(count.counter).split(";");
-                                    if (listData.length > 0) {
-                                        ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
-                                        productListView.setAdapter(adapter);
+                                        String[] listData = productsCateg.get(count.counter).split(";");
+                                        if (listData.length > 0) {
+                                            ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
+                                            productListView.setAdapter(adapter);
+                                        }
+
+                                        count.counter++;
                                     }
-
-                                    count.counter++;
                                 }
                                 else if (count.counter < productsName.size() -1)
                                 {

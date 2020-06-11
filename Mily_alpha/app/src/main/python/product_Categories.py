@@ -13,7 +13,7 @@ def test(arg1):
 
     list_cuv_schimba = ["branza", "smantana","mar", "para", "spaghetti"]
     list_cuv_diacritice = ["brânză","smântână","măr", "pară", "spaghete"]
-    Categorii = ["altceva","lactate", "ulei", "fruct", "legumă","rădăcină","cereală","făină","condiment","mirodenie","alcool","fasole","tubercul","paste","sos","carne"]
+    Categorii = ["lactate", "ulei", "fruct", "legumă","rădăcină","cereală","făină","condiment","mirodenie","alcool","fasole","tubercul","paste","sos","carne"]
 
     Produs_Catego = {}
 
@@ -43,6 +43,7 @@ def test(arg1):
                     list_faina_gris_malai = ["faina","gris","malai"]
                     list_alcool = ["ciuc","radler","ursus","salitos"]
                     list_suc = ["cola"]
+                    list_gustari = ["lay s","chio","lays","chips","krax"]
 
                     if wrd.lower() in list_carne:
                         Produs_Catego[produ] = "carne,"
@@ -55,6 +56,9 @@ def test(arg1):
                         continue
                     if wrd.lower() in list_suc:
                         Produs_Catego[produ] = "suc,"
+                        continue
+                    if wrd.lower() in list_gustari:
+                        Produs_Catego[produ] = "gustari,"
                         continue
 
 
@@ -82,8 +86,9 @@ def test(arg1):
                                             new_list_literals += literals + ";"
                             if new_list_literals:
                                 Produs_Catego[produ] = new_list_literals + ","
-                    # if produ not in Produs_Catego:
-                    #     Produs_Catego[produ] = "Adauga categorie..,"
+                    else:
+                        print ("Nu a fost gasita o categorie !")
+                        Produs_Catego[produ] = "Nici o categorie gasita,"
 
     if Produs_Catego:
         print(Produs_Catego)
