@@ -47,6 +47,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     private Button profileButton;
     private Button addProductButton;
     private Button fridgeButton;
+    private Button searchRecipeButton;
 
     private Button SeeShoopingList;
 
@@ -67,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         profileButton =  findViewById(R.id.profile_button);
         addProductButton = findViewById(R.id.addProducts_button);
         fridgeButton = findViewById(R.id.frig_button);
+        searchRecipeButton = findViewById(R.id.recipe_button);
 
         SeeShoopingList = findViewById(R.id.SeeShoopingList);
 
@@ -141,6 +143,17 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
             @Override
             public void onClick(View v) {
                 Intent sendStuff = new Intent(ProfileActivity.this, ListCategoryActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
+                finish();
+            }
+        });
+
+        searchRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendStuff = new Intent(ProfileActivity.this, SearchRecipeActivity.class);
                 sendStuff.putExtra("name", NameUser);
                 sendStuff.putExtra("email",EmailUser);
                 startActivity(sendStuff);

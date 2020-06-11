@@ -19,6 +19,7 @@
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".ListCategoryActivity"></activity>
         <activity android:name=".ShoppingListActivity"></activity>
+        <activity android:name=".SearchRecipeActivity"></activity>
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

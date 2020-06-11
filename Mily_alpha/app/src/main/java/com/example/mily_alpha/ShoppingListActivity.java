@@ -37,7 +37,6 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     public ListView listView;
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

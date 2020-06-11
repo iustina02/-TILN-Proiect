@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tips_array">
+        <item>Mic dejun</item>
+        <item>Pranz</item>
+        <item>Cina</item>
+        <item>Desert</item>
+        <item>Gustare</item>
+    </string-array>
+</resources>
