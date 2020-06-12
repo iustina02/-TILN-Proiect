@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -38,13 +39,21 @@ public class SearchRecipeActivity extends AppCompatActivity {
     private Button addProductButton;
     private Button fridgeButton;
 
+    private Button categDisponibileButton;
+    private Button toateIngredienteButton;
+
+    private ListView categDisponibileListView;
+    private ListView toateIngredienteleListView;
+
+    private Spinner tip_spin;
+
     private Boolean goBack = false;
 
     public ListView listView;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchrecipe);
 
         Intent startingIntent = getIntent();
@@ -90,6 +99,61 @@ public class SearchRecipeActivity extends AppCompatActivity {
                 sendStuff.putExtra("email",EmailUser);
                 startActivity(sendStuff);
                 finish();
+            }
+        });
+
+        final Spinner spinner = (Spinner) findViewById(R.id.planets_spinner);
+// Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.tips_array, android.R.layout.simple_spinner_item);
+// Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        String tipul_retetei = spinner.getSelectedItem().toString();
+        Log.d("Search Recipe","Tipul retetei: " + tipul_retetei);
+
+        categDisponibileButton = findViewById(R.id.categDisponibile_button);
+        toateIngredienteButton = findViewById(R.id.toateIngredientele_button);
+
+        categDisponibileListView = findViewById(R.id.categDisponibile_listView);
+        categDisponibileListView.setVisibility(View.GONE);
+
+        int User_id = databaseHelper.getUserID(EmailUser, NameUser);
+        ArrayList<String> CategoriiDisponibile = new ArrayList<>();
+        if(databaseHelper.getCategoriesFromUser(User_id+"") != null){
+            CategoriiDisponibile = databaseHelper.getCategoriesFromUser(User_id+"");
+        }
+
+        if (!CategoriiDisponibile.isEmpty()) {
+            ListAdapter categ = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_1, CategoriiDisponibile);
+            categDisponibileListView.setAdapter(categ);
+        }
+
+        toateIngredienteleListView = findViewById(R.id.toateIngredientele_listView);
+        toateIngredienteleListView.setVisibility(View.GONE);
+
+        ArrayList<String> toateIngredientele = new ArrayList<>();
+        toateIngredientele.add("Avocado");
+        toateIngredientele.add("Ceapa");
+
+        ListAdapter ingre = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_1, toateIngredientele);
+        toateIngredienteleListView.setAdapter(ingre);
+
+        categDisponibileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toateIngredienteleListView.setVisibility(View.GONE);
+                categDisponibileListView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        toateIngredienteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                categDisponibileListView.setVisibility(View.GONE);
+                toateIngredienteleListView.setVisibility(View.VISIBLE);
             }
         });
     }
