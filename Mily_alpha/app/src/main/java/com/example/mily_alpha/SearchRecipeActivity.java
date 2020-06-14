@@ -2,31 +2,22 @@ package com.example.mily_alpha;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mily_alpha.DB_Helper.DatabaseHelper;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 
 public class SearchRecipeActivity extends AppCompatActivity {
@@ -41,6 +32,7 @@ public class SearchRecipeActivity extends AppCompatActivity {
 
     private Button categDisponibileButton;
     private Button toateIngredienteButton;
+    private Button searchRetetaButton;
 
     private ListView categDisponibileListView;
     private ListView toateIngredienteleListView;
@@ -102,20 +94,15 @@ public class SearchRecipeActivity extends AppCompatActivity {
             }
         });
 
-        final Spinner spinner = (Spinner) findViewById(R.id.planets_spinner);
-// Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.tips_array, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
+        final Spinner spinner = findViewById(R.id.planets_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.tips_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
-        String tipul_retetei = spinner.getSelectedItem().toString();
-        Log.d("Search Recipe","Tipul retetei: " + tipul_retetei);
 
         categDisponibileButton = findViewById(R.id.categDisponibile_button);
         toateIngredienteButton = findViewById(R.id.toateIngredientele_button);
+        searchRetetaButton = findViewById(R.id.search_recipe_button);
 
         categDisponibileListView = findViewById(R.id.categDisponibile_listView);
         categDisponibileListView.setVisibility(View.GONE);
@@ -127,25 +114,36 @@ public class SearchRecipeActivity extends AppCompatActivity {
         }
 
         if (!CategoriiDisponibile.isEmpty()) {
-            ListAdapter categ = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_1, CategoriiDisponibile);
+            ListAdapter categ = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_multiple_choice, CategoriiDisponibile);
             categDisponibileListView.setAdapter(categ);
         }
 
         toateIngredienteleListView = findViewById(R.id.toateIngredientele_listView);
         toateIngredienteleListView.setVisibility(View.GONE);
 
-        ArrayList<String> toateIngredientele = new ArrayList<>();
+        final ArrayList<String> toateIngredientele = new ArrayList<>();
         toateIngredientele.add("Avocado");
         toateIngredientele.add("Ceapa");
+        toateIngredientele.add("Rosie");
+        toateIngredientele.add("Lime");
+        toateIngredientele.add("Avocado");
+        toateIngredientele.add("Ceapa");
+        toateIngredientele.add("Rosie");
+        toateIngredientele.add("Lime");
 
-        ListAdapter ingre = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_1, toateIngredientele);
+        ListAdapter ingre = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_multiple_choice, toateIngredientele);
+
         toateIngredienteleListView.setAdapter(ingre);
+        toateIngredienteleListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
 
         categDisponibileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toateIngredienteleListView.setVisibility(View.GONE);
                 categDisponibileListView.setVisibility(View.VISIBLE);
+                toateIngredienteleListView.clearChoices();
+                toateIngredienteleListView.clearFocus();
             }
         });
 
@@ -154,6 +152,37 @@ public class SearchRecipeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 categDisponibileListView.setVisibility(View.GONE);
                 toateIngredienteleListView.setVisibility(View.VISIBLE);
+                categDisponibileListView.clearChoices();
+                categDisponibileListView.clearFocus();
+            }
+        });
+
+        final SparseBooleanArray toateIngredienteleChecked = toateIngredienteleListView.getCheckedItemPositions();
+
+        final SparseBooleanArray toatecategoriileChecked = categDisponibileListView.getCheckedItemPositions();
+
+
+        final ArrayList<String> finalCategoriiDisponibile = CategoriiDisponibile;
+        searchRetetaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tipul_retetei = spinner.getSelectedItem().toString();
+                ArrayList<String> search_ing = new ArrayList<>();
+                ArrayList<String> search_categ = new ArrayList<>();
+
+                for(int i = 0; i < toateIngredientele.size(); i++) {
+                    if (toateIngredienteleChecked.get(i)) {
+                        search_ing.add(toateIngredienteleListView.getItemAtPosition(i).toString());
+                    }
+                }
+
+                for(int i = 0; i < finalCategoriiDisponibile.size(); i++) {
+                    if (toatecategoriileChecked.get(i)) {
+                        search_categ.add(categDisponibileListView.getItemAtPosition(i).toString());
+                    }
+                }
+
+                Log.d("SR","Type: "+ tipul_retetei + " Ingredients: " + search_ing + " Categories: " + search_categ);
             }
         });
     }

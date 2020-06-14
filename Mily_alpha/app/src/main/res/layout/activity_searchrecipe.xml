@@ -9,23 +9,23 @@
         android:id="@+id/profile_button"
         android:layout_width="78dp"
         android:layout_height="64dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:background="@drawable/button_profile"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.048"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.974" />
+        app:layout_constraintVertical_bias="0.97" />
 
     <Button
         android:id="@+id/addProducts_button"
         android:layout_width="78dp"
         android:layout_height="64dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
         android:background="@drawable/button_plusprodus"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.348"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.97" />
 
@@ -33,25 +33,24 @@
         android:id="@+id/frig_button"
         android:layout_width="78dp"
         android:layout_height="64dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
         android:background="@drawable/button_refrigerator"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/addProducts_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.663"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.972" />
+        app:layout_constraintVertical_bias="0.97" />
 
     <Button
+
         android:id="@+id/recipe_button"
         android:layout_width="78dp"
         android:layout_height="64dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
         android:background="@drawable/button_search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/frig_button"
+        app:layout_constraintHorizontal_bias="0.951"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.968" />
 
@@ -60,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Cauta retete"
+        android:text="Descopera retete"
         android:textSize="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.083"
@@ -116,7 +115,7 @@
         android:layout_height="248dp"
         android:layout_marginTop="168dp"
         android:background="@drawable/bg_key"
-        android:choiceMode="singleChoice"
+        android:choiceMode="multipleChoice"
         android:listSelector="#666666"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -128,9 +127,19 @@
         android:layout_height="248dp"
         android:layout_marginTop="168dp"
         android:background="@drawable/bg_key"
-        android:choiceMode="singleChoice"
         android:listSelector="#666666"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/search_recipe_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="428dp"
+        android:text="Search"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.873"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
