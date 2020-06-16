@@ -146,6 +146,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button searchRecipeButton = findViewById(R.id.recipe_button);
+
+        searchRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendStuff = new Intent(MainActivity.this, SearchRecipeActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
+                finish();
+            }
+        });
+
 
 
 
@@ -328,9 +341,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error: Recognizer is not operational!", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    if (! Python.isStarted()) {
-                        Python.start(new AndroidPlatform(MainActivity.this));
-                    }
+
 
                     setContentView(R.layout.activity_editproduct);
                     ActionBar actionBar = getSupportActionBar();
@@ -344,22 +355,34 @@ public class MainActivity extends AppCompatActivity {
                     final TextView dataExpirareText = findViewById(R.id.dataExpirareText);
                     final Button addDataExpirareButton = findViewById(R.id.addDateButton);
 
+                    if (! Python.isStarted()) {
+                        Python.start(new AndroidPlatform(MainActivity.this));
+                    }
                     Python py = Python.getInstance();
-                    PyObject pyf = py.getModule("product_Categories");//name of the python file
+                    final PyObject pyf = py.getModule("product_Categories");//name of the python file
 
                     Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                    SparseArray<TextBlock> items = recognizer.detect(frame);
-                    StringBuilder sb = new StringBuilder();
+                    final SparseArray<TextBlock> items = recognizer.detect(frame);
+                    final StringBuilder sb = new StringBuilder();
                     Dictionary geek = new Hashtable();
                     //get text from sb until  there is no text left
                     // Get just food products from image
+
+
                     for (int i = 0; i < items.size(); i++) {
                         TextBlock myItem = items.valueAt(i);
                         PyObject obj = pyf.callAttr("test", myItem.getValue()); // definition name
+                        Log.d("MA","MA " +i );
                         if (!obj.equals("Detalii")) {
                             sb.append(obj.toString());
                         }
+                        if (obj.equals("end")) {
+                            break;
+                        }
                     }
+
+
+
                     //set text to edit  text
                     String Categorie = "";
                     String[] list_product = sb.toString().split(",");
@@ -426,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
                         productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                view.setSelected(true);
+                                alteCategListView.clearFocus();
 
                                 produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString().replace(" ", "");
                                 if(produsDetail.categorieProdus.equals("faina") || produsDetail.categorieProdus.equals("paste") ){
@@ -452,8 +475,7 @@ public class MainActivity extends AppCompatActivity {
                         alteCategListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                view.setSelected(true);
-
+                                productListView.clearFocus();
                                 produsDetail.categorieProdus = alteCategListView.getItemAtPosition(position).toString().replace(" ", "");
                                 ;
 
@@ -502,38 +524,56 @@ public class MainActivity extends AppCompatActivity {
                         addProductButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                produsDetail.numeProdus = productTextView.getText().toString();
                                 if (!produsDetail.numeProdus.equals("") && !produsDetail.categorieProdus.equals("")) {
                                     if (!dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ")) {
                                         Log.d("Data Expirare", dataExpirareText.getText().toString());
                                         produsDetail.dataExpirareProdus = dataExpirareText.getText().toString();
                                     }
-                                    if (databaseHelper.addIngredient(produsDetail.numeProdus)) {
-                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
-                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
-                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
-                                        else
-                                            Log.d("User_Ingredient", "Error 1!");
-                                    } else {
-                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
-                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
-                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
-                                        else
-                                            Log.d("User_Ingredient", "Error 1!");
-                                    }
+                                    if (dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ") && (produsDetail.categorieProdus.equals("lactate") || produsDetail.categorieProdus.equals("fruct"))){
+                                        ErrorDialog errorDialog = new ErrorDialog("Produs", "Este recomandat sa alegi o data de expirare pentru acest produs.");
+                                        errorDialog.show(getSupportFragmentManager(),"error dialog");
 
-                                    //Note gone just invisible and diseable pls
-                                    addProductButton.setEnabled(false);
-                                    addProductButton.setVisibility(View.INVISIBLE);
+                                        addProductButton.setEnabled(true);
+                                        addProductButton.setVisibility(View.VISIBLE);
+                                    }else if (databaseHelper.addIngredient(produsDetail.numeProdus)) {
+                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
+                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
+                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
+                                        else
+                                            Log.d("User_Ingredient", "Error 1!");
+
+                                        addProductButton.setEnabled(false);
+                                        addProductButton.setVisibility(View.INVISIBLE);
+                                    } else if(!databaseHelper.addIngredient(produsDetail.numeProdus)){
+                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
+                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
+                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
+                                        else
+                                            Log.d("User_Ingredient", "Error 1!");
+
+                                        addProductButton.setEnabled(false);
+                                        addProductButton.setVisibility(View.INVISIBLE);
+                                    }
                                 } else {
-                                    Toast.makeText(MainActivity.this, "Selecteaza o categorie!", Toast.LENGTH_SHORT).show();
+                                    ErrorDialog errorDialog = new ErrorDialog("Produs", "Selecteaza o categorie.");
+                                    errorDialog.show(getSupportFragmentManager(),"error dialog");
+                                    addProductButton.setEnabled(true);
+                                    addProductButton.setVisibility(View.VISIBLE);
                                 }
                             }
                         });
 
+                        Counter next_counter = new Counter();
+                        next_counter.counter = 0;
                         //Afisarea urmatorului produs din lista cu categoriile acestuia
                         nextProductButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                productListView.clearFocus();
+                                productListView.clearChoices();
+                                alteCategListView.clearFocus();
+                                alteCategListView.clearChoices();
                                 dataExpirareText.setText(" Selecteaza data de expirare ");
                                 produsDetail.dataExpirareProdus = "Nici o data adaugata!";
                                 addProductButton.setEnabled(true);
@@ -543,19 +583,31 @@ public class MainActivity extends AppCompatActivity {
                                     produsDetail.numeProdus = productsName.get(count.counter);
 
                                 if(productsName.size() == 1){
-                                    if(count.counter != 1) {
                                         productTextView.setText(productsName.get(0));
 
-                                        String[] listData = productsCateg.get(count.counter).split(";");
+                                        String[] listData = productsCateg.get(0).split(";");
                                         if (listData.length > 0) {
                                             ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
                                             productListView.setAdapter(adapter);
                                         }
 
-                                        count.counter++;
-                                    }
+                                        Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
+                                        sendStuff.putExtra("name", NameUser);
+                                        sendStuff.putExtra("email", EmailUser);
+                                        startActivity(sendStuff);
+                                        finish();
                                 }
-                                else if (count.counter < productsName.size() -1)
+                                else if (count.counter == productsName.size())
+                                {
+                                    Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
+                                    sendStuff.putExtra("name", NameUser);
+                                    sendStuff.putExtra("email", EmailUser);
+                                    startActivity(sendStuff);
+                                    finish();
+
+                                    Log.d("Neeeeext", "Lista este afisata !");
+                                }
+                                else
                                 {
                                     productTextView.setText(productsName.get(count.counter));
 
@@ -566,15 +618,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                     count.counter++;
-
-                                    Log.d("Neeeeext", "Lista este afisata !");
-                                } else if (count.counter == productsName.size() -1)
-                                {
-                                    Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
-                                    sendStuff.putExtra("name", NameUser);
-                                    sendStuff.putExtra("email", EmailUser);
-                                    startActivity(sendStuff);
-                                    finish();
                                 }
                             }
                         });

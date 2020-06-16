@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
@@ -37,9 +38,8 @@ public class SearchRecipeActivity extends AppCompatActivity {
     private ListView categDisponibileListView;
     private ListView toateIngredienteleListView;
 
-    private Spinner tip_spin;
 
-    private Boolean goBack = false;
+    private int goBack = 0;
 
     public ListView listView;
 
@@ -105,7 +105,7 @@ public class SearchRecipeActivity extends AppCompatActivity {
         searchRetetaButton = findViewById(R.id.search_recipe_button);
 
         categDisponibileListView = findViewById(R.id.categDisponibile_listView);
-        categDisponibileListView.setVisibility(View.GONE);
+//        categDisponibileListView.setVisibility(View.GONE);
 
         int User_id = databaseHelper.getUserID(EmailUser, NameUser);
         ArrayList<String> CategoriiDisponibile = new ArrayList<>();
@@ -121,15 +121,8 @@ public class SearchRecipeActivity extends AppCompatActivity {
         toateIngredienteleListView = findViewById(R.id.toateIngredientele_listView);
         toateIngredienteleListView.setVisibility(View.GONE);
 
-        final ArrayList<String> toateIngredientele = new ArrayList<>();
-        toateIngredientele.add("Avocado");
-        toateIngredientele.add("Ceapa");
-        toateIngredientele.add("Rosie");
-        toateIngredientele.add("Lime");
-        toateIngredientele.add("Avocado");
-        toateIngredientele.add("Ceapa");
-        toateIngredientele.add("Rosie");
-        toateIngredientele.add("Lime");
+        ArrayList<String> toateIngredientele = new ArrayList<>();
+        toateIngredientele = databaseHelper.getAllIngredientsFromRecipes();
 
         ListAdapter ingre = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_multiple_choice, toateIngredientele);
 
@@ -163,6 +156,7 @@ public class SearchRecipeActivity extends AppCompatActivity {
 
 
         final ArrayList<String> finalCategoriiDisponibile = CategoriiDisponibile;
+        final ArrayList<String> finalToateIngredientele = toateIngredientele;
         searchRetetaButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,7 +164,7 @@ public class SearchRecipeActivity extends AppCompatActivity {
                 ArrayList<String> search_ing = new ArrayList<>();
                 ArrayList<String> search_categ = new ArrayList<>();
 
-                for(int i = 0; i < toateIngredientele.size(); i++) {
+                for(int i = 0; i < finalToateIngredientele.size(); i++) {
                     if (toateIngredienteleChecked.get(i)) {
                         search_ing.add(toateIngredienteleListView.getItemAtPosition(i).toString());
                     }
@@ -183,21 +177,78 @@ public class SearchRecipeActivity extends AppCompatActivity {
                 }
 
                 Log.d("SR","Type: "+ tipul_retetei + " Ingredients: " + search_ing + " Categories: " + search_categ);
+
+                ArrayList<String> id_recipes = new ArrayList<>();
+                if(search_ing.size() > 0){
+                    // Cautare reteta dupa tipul retetei si ingrediente
+                    Log.d("SR","Check ingredients: " + search_ing);
+                    id_recipes = databaseHelper.searchRecipesAfterIngredient_returnListIdRetete(tipul_retetei,search_ing);
+                    Log.d("SP","Found recipes id: " + id_recipes);
+                }
+                if(search_categ.size() > 0){
+                    // Cautare reteta dupa tipul retetei si categorii
+                    Log.d("SR","Check categ: " + search_categ);
+                    id_recipes = databaseHelper.searchRecipesAfterCategory_returnListIdRetete(tipul_retetei,search_categ);
+                    Log.d("SP","Found recipes id: " + id_recipes);
+                }
+
+                if(!id_recipes.isEmpty()) {
+                    setContentView(R.layout.activity_list_recipes);
+                    goBack = 1;
+                    ListView recipes_listView = findViewById(R.id.recipes_listview);
+
+                    ArrayList<String> Names = databaseHelper.getNamesFromRecipes(id_recipes);
+                    ArrayList<String> Times = databaseHelper.getTimeFromRecipes(id_recipes);
+                    ArrayList<Integer> Img_numbers = databaseHelper.getImgNumberFromRecipes(id_recipes);
+
+                    ArrayList<Integer> Img_numbers_drawable = new ArrayList<>();
+
+                    for(Integer img_number: Img_numbers){
+                        String photo =  "recipe_"+ img_number;
+                        int resID = getResources().getIdentifier(photo , "drawable", getPackageName());
+                        Img_numbers_drawable.add(resID);
+                    }
+
+                    RecipeListView adapter = new RecipeListView(SearchRecipeActivity.this, Names,Times, Img_numbers_drawable);
+                    recipes_listView.setAdapter(adapter);
+
+                    recipes_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                            openDialog(position+1);
+                        }
+                    });
+                }
+                else{
+                    ErrorDialog errorDialog = new ErrorDialog("Retete", "Nu am gasit retete.");
+                    errorDialog.show(getSupportFragmentManager(),"error dialog");
+                }
             }
         });
     }
 
+    public void openDialog(int id_recipe){
+        Log.d("SR","position" + id_recipe);
+        String title = databaseHelper.getNameFromRecipe(id_recipe+"");
+        ArrayList<String> ingredients = databaseHelper.getAllIngredientsFullFromRecipe(id_recipe+"");
+        ArrayList<String> steps = databaseHelper.getAllStepsFromRecipe(id_recipe+"");
+
+
+        RecipeDialog recipeDialog =  new RecipeDialog(title,ingredients, steps, NameUser, EmailUser);
+        recipeDialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
     @Override
     public void onBackPressed() {
-        if (goBack == true) {
+        if (goBack == 1) {
             Log.d("Go back:", "YES");
             super.onBackPressed();
-            Intent sendStuff = new Intent(SearchRecipeActivity.this, ProfileActivity.class);
+            Intent sendStuff = new Intent(SearchRecipeActivity.this, SearchRecipeActivity.class);
             sendStuff.putExtra("name", NameUser);
             sendStuff.putExtra("email",EmailUser);
             startActivity(sendStuff);
             finish();
-        } else {
+        } else if(goBack == 0) {
             Log.d("Go back:", "NO");
         }
     }

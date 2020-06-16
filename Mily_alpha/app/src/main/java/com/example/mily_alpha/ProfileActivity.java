@@ -117,16 +117,6 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         });
 
 
-        profileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent sendStuff = new Intent(ProfileActivity.this, ProfileActivity.class);
-                sendStuff.putExtra("name", NameUser);
-                sendStuff.putExtra("email",EmailUser);
-                startActivity(sendStuff);
-                finish();
-            }
-        });
 
         addProductButton.setOnClickListener(new View.OnClickListener() {
             @Override

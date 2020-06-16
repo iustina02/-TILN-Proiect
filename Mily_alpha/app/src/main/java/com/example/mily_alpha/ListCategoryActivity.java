@@ -99,6 +99,19 @@ public class ListCategoryActivity extends AppCompatActivity {
             }
         });
 
+        Button searchRecipeButton = findViewById(R.id.recipe_button);
+
+        searchRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendStuff = new Intent(ListCategoryActivity.this, SearchRecipeActivity.class);
+                sendStuff.putExtra("name", NameUser);
+                sendStuff.putExtra("email",EmailUser);
+                startActivity(sendStuff);
+                finish();
+            }
+        });
+
 
         fainaButton.setOnClickListener(new View.OnClickListener()
         {

@@ -8,10 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "DatabaseHelper";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
     public static final String DATABASE_NAME = "AlphaMily.db";
 
     public static final String USER_TABLE = "User_table";
@@ -100,6 +101,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String RECIPE_TABLE_COL_3 = "Recipe_Ingredients_id";
     public static final String RECIPE_TABLE_COL_4 = "Recipe_Steps_id";
     public static final String RECIPE_TABLE_COL_5 = "Recipe_Categ_id";
+    public static final String RECIPE_TABLE_COL_6 = "Img_number";
+    public static final String RECIPE_TABLE_COL_7 = "Name";
 
 
     public DatabaseHelper(Context context) {
@@ -122,7 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("create table " + RECIPE_CATEG_TABLE + " ( " + RECIPE_CATEG_TABLE_COL_0 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + RECIPE_CATEG_TABLE_COL_1 + "  TEXT,  " + RECIPE_CATEG_TABLE_COL_2 + " TEXT, " + RECIPE_CATEG_TABLE_COL_3 + " TEXT, " + RECIPE_CATEG_TABLE_COL_4 + " TEXT, " + RECIPE_CATEG_TABLE_COL_5 + " TEXT, " + RECIPE_CATEG_TABLE_COL_6 + " TEXT, " + RECIPE_CATEG_TABLE_COL_7 + " TEXT)");
 
-        db.execSQL("create table " + RECIPE_TABLE + " (" + RECIPE_TABLE_COL_0 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + RECIPE_TABLE_COL_1 + " TEXT,  " + RECIPE_TABLE_COL_2 + " TEXT, " + RECIPE_TABLE_COL_3 + " INTEGER, " + RECIPE_TABLE_COL_4 + " INTEGER, " + RECIPE_TABLE_COL_5 + " INTEGER, FOREIGN KEY (" + RECIPE_TABLE_COL_3 + ") REFERENCES " + RECIPE_INGREDIENTS_TABLE + " (Recipe_Ingredients_id), FOREIGN KEY (Recipe_Steps_id) REFERENCES " + RECIPE_STEPS_TABLE + " (Recipe_Steps_id),FOREIGN KEY (Recipe_Categ_id) REFERENCES " + RECIPE_CATEG_TABLE + " (Recipe_Categ_id) )");
+        db.execSQL("create table " + RECIPE_TABLE + " (" + RECIPE_TABLE_COL_0 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + RECIPE_TABLE_COL_1 + " TEXT,  " + RECIPE_TABLE_COL_2 + " TEXT, " + RECIPE_TABLE_COL_3 + " INTEGER, " + RECIPE_TABLE_COL_4 + " INTEGER, " + RECIPE_TABLE_COL_5 + " INTEGER, " + RECIPE_TABLE_COL_6 + " INTEGER, "+RECIPE_TABLE_COL_7 +" TEXT, FOREIGN KEY (" + RECIPE_TABLE_COL_3 + ") REFERENCES " + RECIPE_INGREDIENTS_TABLE + " (Recipe_Ingredients_id), FOREIGN KEY (Recipe_Steps_id) REFERENCES " + RECIPE_STEPS_TABLE + " (Recipe_Steps_id),FOREIGN KEY (Recipe_Categ_id) REFERENCES " + RECIPE_CATEG_TABLE + " (Recipe_Categ_id) )");
 
     }
 
@@ -141,6 +144,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+
     //    USER ACTIONS
     public boolean addUser(String user_email, String user_name) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -148,11 +152,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
 
         if (!checkUserExists(user_email, user_name)) {
-            populate_calories();
-            populate_recipes();
             contentValues.put(USER_TABLE_COL_1, user_email);
             contentValues.put(USER_TABLE_COL_2, user_name);
             Log.d(TAG, "addData: Adding " + user_name + " to " + USER_TABLE);
+            populate_calories();
+            populate_recipes();
 
             long result = db.insert(USER_TABLE, null, contentValues);
             if (result == -1)
@@ -599,6 +603,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // RECIPES CATEG ACTIONS
+
     public int addRecipeCateg(String Categ_1, String Categ_2, String Categ_3, String Categ_4, String Categ_5, String Categ_6, String Categ_7) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -621,7 +626,342 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // RECIPES ACTIONS
-    public int addRecipe(String Tip, String Timp, int Recipe_Ingredients_id, int Recipe_Steps_id, int Recipe_Categ_id) {
+    public ArrayList<String> searchRecipesAfterIngredient_returnListIdRetete(String tip, ArrayList<String> ingredients){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor ids_retete_1;
+        String type = tip.toLowerCase().replace(" ","");
+
+        ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE + " where " + RECIPE_TABLE_COL_1 + " = ? ", new String[]{type}, null);
+
+        ArrayList<String> ids_retete_return = new ArrayList<>();
+
+        ArrayList<String> ids_retete_cu_acel_tip = new ArrayList<>();
+        ArrayList<String> ids_retete_ingrediente_cu_acel_tip = new ArrayList<>();
+
+        while (ids_retete_1.moveToNext()) {
+            ids_retete_cu_acel_tip.add(ids_retete_1.getString(0));
+            ids_retete_ingrediente_cu_acel_tip.add(ids_retete_1.getString(1));
+        }
+
+        int count = 0;
+        for(String id_reteta_ingrediente: ids_retete_ingrediente_cu_acel_tip){
+            ArrayList<String> ingrediente_from_recipe = getAllIngredientsFromRecipe(id_reteta_ingrediente);
+
+            for(String ing: ingrediente_from_recipe){
+                if(ingredients.contains(ing) && !ids_retete_return.contains(ids_retete_cu_acel_tip.get(count))){
+                    ids_retete_return.add(ids_retete_cu_acel_tip.get(count));
+                }
+            }
+             count++;
+
+        }
+
+        return ids_retete_return;
+    }
+
+    public ArrayList<String> searchRecipesAfterCategory_returnListIdRetete(String tip, ArrayList<String> categories){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor ids_retete_1;
+        String type = tip.toLowerCase().replace(" ","");
+
+        ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE + " where " + RECIPE_TABLE_COL_1 + " = ? ", new String[]{type}, null);
+
+        ArrayList<String> ids_retete_return = new ArrayList<>();
+
+        ArrayList<String> ids_retete_cu_acel_tip = new ArrayList<>();
+        ArrayList<String> ids_retete_category_cu_acel_tip = new ArrayList<>();
+
+        while (ids_retete_1.moveToNext()) {
+            ids_retete_cu_acel_tip.add(ids_retete_1.getString(0));
+            ids_retete_category_cu_acel_tip.add(ids_retete_1.getString(1));
+        }
+
+        int count = 0;
+        for(String id_reteta_category: ids_retete_category_cu_acel_tip){
+            ArrayList<String> category_from_recipe = getAllCategoryFromRecipe(id_reteta_category);
+
+            for(String ing: category_from_recipe){
+                if(categories.contains(ing) && !ids_retete_return.contains(ids_retete_cu_acel_tip.get(count))){
+                    ids_retete_return.add(ids_retete_cu_acel_tip.get(count));
+                }
+            }
+            count++;
+
+        }
+
+        return ids_retete_return;
+    }
+
+    public ArrayList<String> getAllCategoryFromRecipe(String recipe_ing_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select * from " + RECIPE_CATEG_TABLE +" where " + RECIPE_CATEG_TABLE_COL_0 +"= ? ",new String[]{recipe_ing_id});
+
+        ArrayList<String> allCategories = new ArrayList<>();
+        ArrayList<String> distinctCategories = new ArrayList<>();
+
+        while(data.moveToNext()){
+            allCategories.add(data.getString(1));
+            allCategories.add(data.getString(2));
+            allCategories.add(data.getString(3));
+            allCategories.add(data.getString(4));
+            allCategories.add(data.getString(5));
+            allCategories.add(data.getString(6));
+            allCategories.add(data.getString(7));
+
+        }
+
+        for(String category: allCategories){
+            if(!category.equals("")){
+                distinctCategories.add(category);
+            }
+        }
+        return distinctCategories;
+    }
+
+    public ArrayList<String> getAllIngredientsFromRecipe(String recipe_ing_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select * from " + RECIPE_INGREDIENTS_TABLE +" where " + RECIPE_INGREDIENTS_TABLE_COL_0 +"= ? ",new String[]{recipe_ing_id});
+
+        ArrayList<String> allIngredients = new ArrayList<>();
+        ArrayList<String> distinctIngredients = new ArrayList<>();
+
+        while(data.moveToNext()){
+            allIngredients.add(data.getString(1));
+            allIngredients.add(data.getString(2));
+            allIngredients.add(data.getString(3));
+            allIngredients.add(data.getString(4));
+            allIngredients.add(data.getString(5));
+            allIngredients.add(data.getString(6));
+            allIngredients.add(data.getString(7));
+            allIngredients.add(data.getString(8));
+            allIngredients.add(data.getString(9));
+            allIngredients.add(data.getString(10));
+            allIngredients.add(data.getString(11));
+            allIngredients.add(data.getString(12));
+            allIngredients.add(data.getString(13));
+            allIngredients.add(data.getString(14));
+            allIngredients.add(data.getString(15));
+            allIngredients.add(data.getString(16));
+            allIngredients.add(data.getString(17));
+            allIngredients.add(data.getString(18));
+            allIngredients.add(data.getString(19));
+            allIngredients.add(data.getString(20));
+        }
+
+        for(String ing: allIngredients){
+            String[] words = ing.split(" ");
+            ArrayList<String> ingrediente_final = new ArrayList<>();
+
+            for(String word: words){
+                if(!hasNumbers(word) && !word.equals("/") && !word.equals("lingura") && !word.equals("lingurita") && !word.equals("")){
+                    ingrediente_final.add(word);
+                }
+            }
+
+            for(String ingre_final: ingrediente_final) {
+                if (!distinctIngredients.contains(ingre_final)) {
+                    distinctIngredients.add(ingre_final);
+                }
+            }
+        }
+        return distinctIngredients;
+    }
+
+    public ArrayList<String> getAllIngredientsFullFromRecipe(String id_recipe){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select "+RECIPE_TABLE_COL_3+" from " + RECIPE_TABLE +" where " + RECIPE_TABLE_COL_0 +"= ? ",new String[]{id_recipe});
+
+        String id_recipe_ing= "";
+        while(data.moveToNext()){
+            id_recipe_ing = data.getString(0);
+        }
+
+        data = db.rawQuery("select * from " + RECIPE_INGREDIENTS_TABLE +" where " + RECIPE_INGREDIENTS_TABLE_COL_0 +"= ? ",new String[]{id_recipe_ing});
+
+        ArrayList<String> allIngredients = new ArrayList<>();
+
+        while(data.moveToNext()){
+            allIngredients.add(data.getString(1));
+            allIngredients.add(data.getString(2));
+            allIngredients.add(data.getString(3));
+            allIngredients.add(data.getString(4));
+            allIngredients.add(data.getString(5));
+            allIngredients.add(data.getString(6));
+            allIngredients.add(data.getString(7));
+            allIngredients.add(data.getString(8));
+            allIngredients.add(data.getString(9));
+            allIngredients.add(data.getString(10));
+            allIngredients.add(data.getString(11));
+            allIngredients.add(data.getString(12));
+            allIngredients.add(data.getString(13));
+            allIngredients.add(data.getString(14));
+            allIngredients.add(data.getString(15));
+            allIngredients.add(data.getString(16));
+            allIngredients.add(data.getString(17));
+            allIngredients.add(data.getString(18));
+            allIngredients.add(data.getString(19));
+            allIngredients.add(data.getString(20));
+        }
+
+        return allIngredients;
+    }
+
+    public ArrayList<String> getAllStepsFromRecipe(String id_recipe){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select "+RECIPE_TABLE_COL_4+" from " + RECIPE_TABLE +" where " + RECIPE_TABLE_COL_0 +"= ? ",new String[]{id_recipe});
+
+        String id_recipe_steps= "";
+        while(data.moveToNext()){
+            id_recipe_steps = data.getString(0);
+        }
+
+        data = db.rawQuery("select * from " + RECIPE_STEPS_TABLE +" where " + RECIPE_STEPS_TABLE_COL_0 +"= ? ",new String[]{id_recipe_steps});
+
+        ArrayList<String> allSteps = new ArrayList<>();
+
+        while(data.moveToNext()){
+            allSteps.add(data.getString(1));
+            allSteps.add(data.getString(2));
+            allSteps.add(data.getString(3));
+            allSteps.add(data.getString(4));
+            allSteps.add(data.getString(5));
+            allSteps.add(data.getString(6));
+            allSteps.add(data.getString(7));
+            allSteps.add(data.getString(8));
+            allSteps.add(data.getString(9));
+            allSteps.add(data.getString(10));
+            allSteps.add(data.getString(11));
+            allSteps.add(data.getString(12));
+            allSteps.add(data.getString(13));
+            allSteps.add(data.getString(14));
+            allSteps.add(data.getString(15));
+            allSteps.add(data.getString(16));
+            allSteps.add(data.getString(17));
+            allSteps.add(data.getString(18));
+            allSteps.add(data.getString(19));
+            allSteps.add(data.getString(20));
+        }
+
+        return allSteps;
+
+    }
+
+    public ArrayList<String> getAllIngredientsFromRecipes (){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select * from " + RECIPE_INGREDIENTS_TABLE,new String[]{});
+
+        ArrayList<String> allIngredients = new ArrayList<>();
+        ArrayList<String> distinctIngredients = new ArrayList<>();
+
+        while(data.moveToNext()){
+            allIngredients.add(data.getString(1));
+            allIngredients.add(data.getString(2));
+            allIngredients.add(data.getString(3));
+            allIngredients.add(data.getString(4));
+            allIngredients.add(data.getString(5));
+            allIngredients.add(data.getString(6));
+            allIngredients.add(data.getString(7));
+            allIngredients.add(data.getString(8));
+            allIngredients.add(data.getString(9));
+            allIngredients.add(data.getString(10));
+            allIngredients.add(data.getString(11));
+            allIngredients.add(data.getString(12));
+            allIngredients.add(data.getString(13));
+            allIngredients.add(data.getString(14));
+            allIngredients.add(data.getString(15));
+            allIngredients.add(data.getString(16));
+            allIngredients.add(data.getString(17));
+            allIngredients.add(data.getString(18));
+            allIngredients.add(data.getString(19));
+            allIngredients.add(data.getString(20));
+        }
+
+        for(String ing: allIngredients){
+            String[] words = ing.split(" ");
+            ArrayList<String> ingrediente_final = new ArrayList<>();
+
+            for(String word: words){
+                if(!hasNumbers(word) && !word.equals("/") && !word.equals("lingura") && !word.equals("lingurita") && !word.equals("")){
+                    ingrediente_final.add(word);
+                }
+            }
+
+            for(String ingre_final: ingrediente_final) {
+                if (!distinctIngredients.contains(ingre_final)) {
+                    distinctIngredients.add(ingre_final);
+                }
+            }
+        }
+        return distinctIngredients;
+
+    }
+
+    public ArrayList<String> getNamesFromRecipes(ArrayList<String> ids_recipes){
+        ArrayList<String> Names = new ArrayList<>();
+
+        for(String id_recipe: ids_recipes){
+            Names.add(getNameFromRecipe(id_recipe));
+        }
+
+        return Names;
+
+    }
+
+    public String getNameFromRecipe(String id_recipe){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select "+RECIPE_TABLE_COL_7+" from " + RECIPE_TABLE + " where "+RECIPE_TABLE_COL_0+" = ?", new String[]{id_recipe});
+
+        String name = null;
+        while(data.moveToNext()) {
+            name = data.getString(0);
+        }
+        return name;
+    }
+
+    public ArrayList<String> getTimeFromRecipes(ArrayList<String> id_recipes){
+        ArrayList<String> Times = new ArrayList<>();
+
+        for(String id_recipe: id_recipes){
+            Times.add(getTimeFromRecipe(id_recipe));
+        }
+
+        return Times;
+    }
+
+    public String getTimeFromRecipe(String id_recipe){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select "+RECIPE_TABLE_COL_2+" from " + RECIPE_TABLE + " where "+RECIPE_TABLE_COL_0+" = ?", new String[]{id_recipe});
+
+        String name = null;
+        while(data.moveToNext()) {
+            name = data.getString(0);
+        }
+        return name;
+    }
+
+    public ArrayList<Integer> getImgNumberFromRecipes(ArrayList<String> id_recipes){
+        ArrayList<Integer> Img_number = new ArrayList<>();
+
+        for(String id_recipe: id_recipes){
+            Img_number.add(getImgNumberFromRecipe(id_recipe));
+        }
+
+        return Img_number;
+    }
+
+    public Integer getImgNumberFromRecipe(String id_recipe){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select "+RECIPE_TABLE_COL_6+" from " + RECIPE_TABLE + " where "+RECIPE_TABLE_COL_0+" = ?", new String[]{id_recipe});
+
+        Integer name = null;
+        while(data.moveToNext()) {
+            name = Integer.parseInt(data.getString(0));
+        }
+        return name;
+    }
+
+
+    public int addRecipe(String Tip, String Timp, int Recipe_Ingredients_id, int Recipe_Steps_id, int Recipe_Categ_id, int Img_Number, String Name) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -631,18 +971,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(RECIPE_TABLE_COL_3, Recipe_Ingredients_id);
         contentValues.put(RECIPE_TABLE_COL_4, Recipe_Steps_id);
         contentValues.put(RECIPE_TABLE_COL_5, Recipe_Categ_id);
+        contentValues.put(RECIPE_TABLE_COL_6, Img_Number);
+        contentValues.put(RECIPE_TABLE_COL_7, Name);
 
         long result = db.insert(RECIPE_TABLE, null, contentValues);
         return (int) result;
     }
 
     public void populate_recipes(){
-        int recipe_ing_id = addRecipeIngredient("Avocado x2","Ceapa x1","Lamaie / Lime x1 lingura","Ardei iute x2","Coriandru","Rosie x1/2","Sare x1/2 lingurita","Piper","","","","","","","","","","","","");
+        int recipe_ing_id = addRecipeIngredient("Avocado x2","Ceapa x1","Lamaie / Lime x1 lingura","Ardei-iute x2","Coriandru","Rosie x1/2","Sare x1/2 lingurita","Piper","","","","","","","","","","","","");
         int recipe_steps_id = addRecipeSteps("Curata fructele de avocado de coaja, scoate samburele si zdrobeste-le intr-un bol cu ajutorul unei furculite.","Adauga rosia, sarea si sucul de lamaie.","Toaca ceapa marunt si adaug-o in pasta impreuna cu piperul, coriandrul si ardeiul iute.","Amesteca bine toate ingredientele pana se omogenizeaza.","Acopera bolul de guacamole cu o folie de plastic si tine-l la frigider","Este indicat sa il consumi proaspat, deoarece pulpa fructului se oxideaza foarte usor.","","","","","","","","","","","","","","");
         int recipe_categ_id = addRecipeCateg("fruct","condimente","legume","","","","");
 
-        int recipe_id = addRecipe("gustare","20 min",recipe_ing_id,recipe_steps_id,recipe_categ_id);
+        int recipe_id = addRecipe("gustare","20 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,1,"Guacamole");
         Log.d("DB","Reteta id: " + recipe_id);
+    }
+
+
+    public boolean hasNumbers(String str) {
+        if(str.contains("0") || str.contains("1") || str.contains("2") || str.contains("3") || str.contains("4") || str.contains("5")
+                || str.contains("6") || str.contains("7") ||str.contains("8")||str.contains("9")){
+            return true;
+        }
+        return false;
     }
 
 }
