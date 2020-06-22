@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
-    final DatabaseHelper databaseHelper = new DatabaseHelper(this);
+    final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
 
     public String NameUser;
     public String EmailUser;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setSubtitle("Click Image button to insert Image");
+//        actionBar.setSubtitle("");
 
         Intent startingIntent = getIntent();
         NameUser = startingIntent.getStringExtra("name");
@@ -332,9 +333,9 @@ public class MainActivity extends AppCompatActivity {
 
                 //get drawable bitmap for text recognition
                 BitmapDrawable bitmapDrawable = (BitmapDrawable) mPreviewIv.getDrawable();
-                Bitmap bitmap = bitmapDrawable.getBitmap();
+                final Bitmap bitmap = bitmapDrawable.getBitmap();
 
-                TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
+                final TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
 
                 // Get text from image
                 if (!recognizer.isOperational()) {
@@ -342,296 +343,328 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
 
+                    final ProgressDialog progressDialog = ProgressDialog.show(this, "", "Te rog sa astepti...\n\n Schimba numele produselor cu cel corect pentru a vedea numarul de calorii.");
 
-                    setContentView(R.layout.activity_editproduct);
-                    ActionBar actionBar = getSupportActionBar();
-                    final EditText productTextView = findViewById(R.id.ProdusTextView);
-                    final ListView productListView = findViewById(R.id.produsListView);
-                    final ListView alteCategListView = findViewById(R.id.alteCategListView);
-                    alteCategListView.setVisibility(View.GONE);
-                    final Button alteCategButton = findViewById(R.id.alteCateg_button);
-                    final Button nextProductButton = findViewById(R.id.nextButton);
-                    final Button addProductButton = findViewById(R.id.addButton);
-                    final TextView dataExpirareText = findViewById(R.id.dataExpirareText);
-                    final Button addDataExpirareButton = findViewById(R.id.addDateButton);
+                    setContentView(R.layout.loading);
+                    ImageView img  = findViewById(R.id.imageView);
+                    img.setBackgroundResource(R.drawable.background);
+                    final ActionBar actionBar = getSupportActionBar();
+                    actionBar.hide();
 
-                    if (! Python.isStarted()) {
-                        Python.start(new AndroidPlatform(MainActivity.this));
-                    }
-                    Python py = Python.getInstance();
-                    final PyObject pyf = py.getModule("product_Categories");//name of the python file
+                    new Thread() {
+                        public void run() {
 
-                    Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                    final SparseArray<TextBlock> items = recognizer.detect(frame);
-                    final StringBuilder sb = new StringBuilder();
-                    Dictionary geek = new Hashtable();
-                    //get text from sb until  there is no text left
-                    // Get just food products from image
+                            final StringBuilder sb = new StringBuilder();
+                            try{
 
+                            if (!Python.isStarted()) {
+                                Python.start(new AndroidPlatform(MainActivity.this));
+                            }
+                            Python py = Python.getInstance();
+                            final PyObject pyf = py.getModule("product_Categories");//name of the python file
 
-                    for (int i = 0; i < items.size(); i++) {
-                        TextBlock myItem = items.valueAt(i);
-                        PyObject obj = pyf.callAttr("test", myItem.getValue()); // definition name
-                        Log.d("MA","MA " +i );
-                        if (!obj.equals("Detalii")) {
-                            sb.append(obj.toString());
-                        }
-                        if (obj.equals("end")) {
-                            break;
-                        }
-                    }
+                            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+                            final SparseArray<TextBlock> items = recognizer.detect(frame);
+                            Dictionary geek = new Hashtable();
+                            //get text from sb until  there is no text left
+                            // Get just food products from image
 
 
-
-                    //set text to edit  text
-                    String Categorie = "";
-                    String[] list_product = sb.toString().split(",");
-                    for (String product : list_product) {
-                        product = product.replace("{", "").replace("'", "").replace("}", "");
-                        Categorie += product + "\n\n";
-                        Log.w("Verify String: ", product);
-                    }
-
-
-                    final String[] productsAll = Categorie.split("\n");
-                    final List<String> productsName = new ArrayList<String>();
-                    final List<String> productsCateg = new ArrayList<String>();
-
-                    // From python exec to : nume produse + categorii produse
-                    for (String prodAll : productsAll) {
-                        String[] produ = prodAll.split(":");
-                        if (produ[0] != " " && produ[0] != "\n" && produ[0] != null && produ[0] != "") {
-                            productsName.add(produ[0]);
-                            if (produ.length > 1)
-                                productsCateg.add(produ[1]);
-                        }
-                    }
-                    Log.d("Products", productsName.toString());
-
-                    // Clasa counter pentru afisarea pe rand produselor
-                    class Counter {
-                        int counter = 0;
-                    }
-
-                    // Clasa pentru salvarea detaliilor despre produse
-                    class ProdusDetail {
-                        String numeProdus = "";
-                        String categorieProdus = "";
-                        String dataExpirareProdus = "Nici o data adaugata!";
-                    }
-
-                    final Counter count = new Counter();
-                    final ProdusDetail produsDetail = new ProdusDetail();
-
-                    if (productsName.size() > 0) {
-                        produsDetail.numeProdus = productsName.get(count.counter);
-                        Log.d("Nume", produsDetail.numeProdus);
-                        productTextView.setText(produsDetail.numeProdus);
-
-                        // Afisarea listei generate de rowordnet a categoriilor sugerate
-                        String[] listData = productsCateg.get(count.counter).split(";");
-                        if (listData.length > 0) {
-                            ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listData);
-                            productListView.setAdapter(adapter);
-                            count.counter++;
-                        }
-
-                        // Afisarea listei cu toate categoriile disponibile
-                        String[] alteCategorii = {"legume", "fruct", "lactate", "carne", "cereale","condiment","gustari"};
-                        if (alteCategorii.length > 0) {
-                            ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, alteCategorii);
-                            alteCategListView.setAdapter(adapter);
-                        }
-
-                        final int user_id = databaseHelper.getUserID(EmailUser, NameUser);
-
-                        // Selectarea unei categorii din lista produsa
-                        productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                alteCategListView.clearFocus();
-
-                                produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString().replace(" ", "");
-                                if(produsDetail.categorieProdus.equals("faina") || produsDetail.categorieProdus.equals("paste") ){
-                                    produsDetail.categorieProdus = "cereale";
+                            for (int i = 0; i < items.size(); i++) {
+                                TextBlock myItem = items.valueAt(i);
+                                PyObject obj = pyf.callAttr("test", myItem.getValue()); // definition name
+                                Log.d("MA","MA " +i );
+                                if (!obj.equals("Detalii")) {
+                                    sb.append(obj.toString());
                                 }
-                                if(produsDetail.categorieProdus.equals("rădăcinoase")){
-                                    produsDetail.categorieProdus = "legume";
-                                }
-                                if(produsDetail.categorieProdus.equals("mirodenie")){
-                                    produsDetail.categorieProdus = "condiment";
-                                }
-                                if(produsDetail.categorieProdus.equals("suc") || produsDetail.categorieProdus.equals("alcool")){
-                                    produsDetail.categorieProdus = "gustari";
-                                }
-
-
-                                Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
-                                Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-                        //Selectarea unei categorii din lista totala
-                        alteCategListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                productListView.clearFocus();
-                                produsDetail.categorieProdus = alteCategListView.getItemAtPosition(position).toString().replace(" ", "");
-                                ;
-
-                                Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
-                                Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-                        addDataExpirareButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Calendar calendar = Calendar.getInstance();
-                                int year = calendar.get(Calendar.YEAR);
-                                int month = calendar.get(Calendar.MONTH);
-                                int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-                                DatePickerDialog dialog = new DatePickerDialog(
-                                        MainActivity.this,
-                                        android.R.style.Theme_DeviceDefault_Dialog_MinWidth,
-                                        mDateSetListener,
-                                        year, month, day);
-                                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                dialog.show();
-                            }
-                        });
-
-                        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                month += 1;
-                                String luna = "0"+month;
-                                Log.d("DateTime: ", year + "/" + luna + "/" + dayOfMonth);
-                                dataExpirareText.setText(year + "/" + luna + "/" + dayOfMonth);
-                            }
-                        };
-
-                        // Afisarea listei complete cu butonul alteCategButton
-                        alteCategButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                alteCategListView.setVisibility(View.VISIBLE);
-                            }
-                        });
-
-                        // Adaugarea in baza de date a ingredientelor in legatura cu utilizatorul
-                        addProductButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                produsDetail.numeProdus = productTextView.getText().toString();
-                                if (!produsDetail.numeProdus.equals("") && !produsDetail.categorieProdus.equals("")) {
-                                    if (!dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ")) {
-                                        Log.d("Data Expirare", dataExpirareText.getText().toString());
-                                        produsDetail.dataExpirareProdus = dataExpirareText.getText().toString();
-                                    }
-                                    if (dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ") && (produsDetail.categorieProdus.equals("lactate") || produsDetail.categorieProdus.equals("fruct"))){
-                                        ErrorDialog errorDialog = new ErrorDialog("Produs", "Este recomandat sa alegi o data de expirare pentru acest produs.");
-                                        errorDialog.show(getSupportFragmentManager(),"error dialog");
-
-                                        addProductButton.setEnabled(true);
-                                        addProductButton.setVisibility(View.VISIBLE);
-                                    }else if (databaseHelper.addIngredient(produsDetail.numeProdus)) {
-                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
-                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
-                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
-                                        else
-                                            Log.d("User_Ingredient", "Error 1!");
-
-                                        addProductButton.setEnabled(false);
-                                        addProductButton.setVisibility(View.INVISIBLE);
-                                    } else if(!databaseHelper.addIngredient(produsDetail.numeProdus)){
-                                        int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
-                                        if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
-                                            Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
-                                        else
-                                            Log.d("User_Ingredient", "Error 1!");
-
-                                        addProductButton.setEnabled(false);
-                                        addProductButton.setVisibility(View.INVISIBLE);
-                                    }
-                                } else {
-                                    ErrorDialog errorDialog = new ErrorDialog("Produs", "Selecteaza o categorie.");
-                                    errorDialog.show(getSupportFragmentManager(),"error dialog");
-                                    addProductButton.setEnabled(true);
-                                    addProductButton.setVisibility(View.VISIBLE);
+                                if (obj.equals("end")) {
+                                    break;
                                 }
                             }
-                        });
+                            }
+                            catch (Exception e) {
+                                Log.e("tag", e.getMessage());
+                            }
+                            // dismiss the progress dialog
+                            progressDialog.dismiss();
 
-                        Counter next_counter = new Counter();
-                        next_counter.counter = 0;
-                        //Afisarea urmatorului produs din lista cu categoriile acestuia
-                        nextProductButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                productListView.clearFocus();
-                                productListView.clearChoices();
-                                alteCategListView.clearFocus();
-                                alteCategListView.clearChoices();
-                                dataExpirareText.setText(" Selecteaza data de expirare ");
-                                produsDetail.dataExpirareProdus = "Nici o data adaugata!";
-                                addProductButton.setEnabled(true);
-                                addProductButton.setVisibility(View.VISIBLE);
 
-                                if (productsName.size() > count.counter)
-                                    produsDetail.numeProdus = productsName.get(count.counter);
+                            runOnUiThread(new Runnable() {
 
-                                if(productsName.size() == 1){
-                                        productTextView.setText(productsName.get(0));
+                                @Override
+                                public void run() {
+                            setContentView(R.layout.activity_editproduct);
+                            actionBar.hide();
 
-                                        String[] listData = productsCateg.get(0).split(";");
-                                        if (listData.length > 0) {
-                                            ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
-                                            productListView.setAdapter(adapter);
-                                        }
+                            final EditText productTextView = findViewById(R.id.ProdusTextView);
+                            final ListView productListView = findViewById(R.id.produsListView);
+                            final ListView alteCategListView = findViewById(R.id.alteCategListView);
+                            alteCategListView.setVisibility(View.GONE);
+                            final Button alteCategButton = findViewById(R.id.alteCateg_button);
+                            final Button nextProductButton = findViewById(R.id.nextButton);
+                            final Button addProductButton = findViewById(R.id.addButton);
+                            final TextView dataExpirareText = findViewById(R.id.dataExpirareText);
+                            final Button addDataExpirareButton = findViewById(R.id.addDateButton);
 
-                                        Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
-                                        sendStuff.putExtra("name", NameUser);
-                                        sendStuff.putExtra("email", EmailUser);
-                                        startActivity(sendStuff);
-                                        finish();
+
+
+                            //set text to edit  text
+                            String Categorie = "";
+                            String[] list_product = sb.toString().split(",");
+                            for (String product : list_product) {
+                                product = product.replace("{", "").replace("'", "").replace("}", "");
+                                Categorie += product + "\n\n";
+                                Log.w("Verify String: ", product);
+                            }
+
+
+                            final String[] productsAll = Categorie.split("\n");
+                            final List<String> productsName = new ArrayList<String>();
+                            final List<String> productsCateg = new ArrayList<String>();
+
+                            // From python exec to : nume produse + categorii produse
+                            for (String prodAll : productsAll) {
+                                String[] produ = prodAll.split(":");
+                                if (produ[0] != " " && produ[0] != "\n" && produ[0] != null && produ[0] != "") {
+                                    productsName.add(produ[0]);
+                                    if (produ.length > 1)
+                                        productsCateg.add(produ[1]);
                                 }
-                                else if (count.counter == productsName.size())
-                                {
-                                    Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
-                                    sendStuff.putExtra("name", NameUser);
-                                    sendStuff.putExtra("email", EmailUser);
-                                    startActivity(sendStuff);
-                                    finish();
+                            }
+                            Log.d("Products", productsName.toString());
 
-                                    Log.d("Neeeeext", "Lista este afisata !");
-                                }
-                                else
-                                {
-                                    productTextView.setText(productsName.get(count.counter));
+                            // Clasa counter pentru afisarea pe rand produselor
+                            class Counter {
+                                int counter = 0;
+                            }
 
-                                    String[] listData = productsCateg.get(count.counter).split(";");
-                                    if (listData.length > 0) {
-                                        ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
-                                        productListView.setAdapter(adapter);
-                                    }
+                            // Clasa pentru salvarea detaliilor despre produse
+                            class ProdusDetail {
+                                String numeProdus = "";
+                                String categorieProdus = "";
+                                String dataExpirareProdus = "Nici o data adaugata!";
+                            }
 
+                            final Counter count = new Counter();
+                            final ProdusDetail produsDetail = new ProdusDetail();
+
+                            if (productsName.size() > 0) {
+                                produsDetail.numeProdus = productsName.get(count.counter);
+                                Log.d("Nume", produsDetail.numeProdus);
+                                productTextView.setText(produsDetail.numeProdus);
+
+                                // Afisarea listei generate de rowordnet a categoriilor sugerate
+                                String[] listData = productsCateg.get(count.counter).split(";");
+                                if (listData.length > 0) {
+                                    ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
+                                    productListView.setAdapter(adapter);
                                     count.counter++;
                                 }
-                            }
-                        });
-                    }
-                    else
-                    {
-                        Intent sendStuff = new Intent(MainActivity.this, MainActivity.class);
-                        sendStuff.putExtra("name", NameUser);
-                        sendStuff.putExtra("email", EmailUser);
-                        startActivity(sendStuff);
-                        finish();
-                        Toast.makeText(this, "Nu s-au gasit produse!", Toast.LENGTH_SHORT).show();
 
-                    }
+                                // Afisarea listei cu toate categoriile disponibile
+                                String[] alteCategorii = {"legume", "fruct", "lactate", "carne", "cereale","condiment","gustari si bauturi"};
+                                if (alteCategorii.length > 0) {
+                                    ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, alteCategorii);
+                                    alteCategListView.setAdapter(adapter);
+                                }
+
+                                final int user_id = databaseHelper.getUserID(EmailUser, NameUser);
+
+                                // Selectarea unei categorii din lista produsa
+                                productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        alteCategListView.clearFocus();
+
+                                        produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString().replace(" ", "");
+                                        if(produsDetail.categorieProdus.equals("faina") || produsDetail.categorieProdus.equals("paste") || produsDetail.categorieProdus.equals("malai") ){
+                                            produsDetail.categorieProdus = "cereale";
+                                        }
+                                        if(produsDetail.categorieProdus.equals("rădăcinoase")){
+                                            produsDetail.categorieProdus = "legume";
+                                        }
+                                        if(produsDetail.categorieProdus.equals("mirodenie")){
+                                            produsDetail.categorieProdus = "condiment";
+                                        }
+                                        if(produsDetail.categorieProdus.equals("suc") || produsDetail.categorieProdus.equals("alcool")){
+                                            produsDetail.categorieProdus = "gustari si bauturi";
+                                        }
+
+
+                                        Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
+                                        Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                                //Selectarea unei categorii din lista totala
+                                alteCategListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        productListView.clearFocus();
+                                        produsDetail.categorieProdus = alteCategListView.getItemAtPosition(position).toString().replace(" ", "");
+                                        ;
+
+                                        Log.d("Categorie", "Categoria selectata !" + produsDetail.categorieProdus);
+                                        Toast.makeText(MainActivity.this, "Categoria selectata: " + produsDetail.categorieProdus, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                                addDataExpirareButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Calendar calendar = Calendar.getInstance();
+                                        int year = calendar.get(Calendar.YEAR);
+                                        int month = calendar.get(Calendar.MONTH);
+                                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                                        DatePickerDialog dialog = new DatePickerDialog(
+                                                MainActivity.this,
+                                                android.R.style.Theme_DeviceDefault_Dialog_MinWidth,
+                                                mDateSetListener,
+                                                year, month, day);
+                                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                        dialog.show();
+                                    }
+                                });
+
+                                mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                        month += 1;
+                                        String luna = "0"+month;
+                                        Log.d("DateTime: ", year + "/" + luna + "/" + dayOfMonth);
+                                        dataExpirareText.setText(year + "/" + luna + "/" + dayOfMonth);
+                                    }
+                                };
+
+                                // Afisarea listei complete cu butonul alteCategButton
+                                alteCategButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        alteCategListView.setVisibility(View.VISIBLE);
+                                    }
+                                });
+
+                                // Adaugarea in baza de date a ingredientelor in legatura cu utilizatorul
+                                addProductButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        produsDetail.numeProdus = productTextView.getText().toString();
+                                        if (!produsDetail.numeProdus.equals("") && !produsDetail.categorieProdus.equals("")) {
+                                            if (!dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ")) {
+                                                Log.d("Data Expirare", dataExpirareText.getText().toString());
+                                                produsDetail.dataExpirareProdus = dataExpirareText.getText().toString();
+                                            }
+                                            if (dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ") && (produsDetail.categorieProdus.equals("lactate") || produsDetail.categorieProdus.equals("fruct"))){
+                                                ErrorDialog errorDialog = new ErrorDialog("Produs", "Este recomandat sa alegi o data de expirare pentru acest produs.");
+                                                errorDialog.show(getSupportFragmentManager(),"error dialog");
+
+                                                addProductButton.setEnabled(true);
+                                                addProductButton.setVisibility(View.VISIBLE);
+                                            }else if (databaseHelper.addIngredient(produsDetail.numeProdus)) {
+                                                int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
+                                                if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
+                                                    Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
+                                                else
+                                                    Log.d("User_Ingredient", "Error 1!");
+
+                                                addProductButton.setEnabled(false);
+                                                addProductButton.setVisibility(View.INVISIBLE);
+                                            } else if(!databaseHelper.addIngredient(produsDetail.numeProdus)){
+                                                int ingredient_id = databaseHelper.getIngredientID(produsDetail.numeProdus);
+                                                if (databaseHelper.addUser_Ingredient(user_id, ingredient_id, produsDetail.dataExpirareProdus, produsDetail.categorieProdus))
+                                                    Log.d("User_Ingredient", "Add:" + produsDetail.categorieProdus);
+                                                else
+                                                    Log.d("User_Ingredient", "Error 1!");
+
+                                                addProductButton.setEnabled(false);
+                                                addProductButton.setVisibility(View.INVISIBLE);
+                                            }
+                                        } else {
+                                            ErrorDialog errorDialog = new ErrorDialog("Produs", "Selecteaza o categorie.");
+                                            errorDialog.show(getSupportFragmentManager(),"error dialog");
+                                            addProductButton.setEnabled(true);
+                                            addProductButton.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                });
+
+                                Counter next_counter = new Counter();
+                                next_counter.counter = 0;
+                                //Afisarea urmatorului produs din lista cu categoriile acestuia
+                                nextProductButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        productListView.clearFocus();
+                                        productListView.clearChoices();
+                                        alteCategListView.clearFocus();
+                                        alteCategListView.clearChoices();
+                                        dataExpirareText.setText(" Selecteaza data de expirare ");
+                                        produsDetail.dataExpirareProdus = "Nici o data adaugata!";
+                                        addProductButton.setEnabled(true);
+                                        addProductButton.setVisibility(View.VISIBLE);
+
+                                        if (productsName.size() > count.counter)
+                                            produsDetail.numeProdus = productsName.get(count.counter);
+
+                                        if(productsName.size() == 1){
+                                                productTextView.setText(productsName.get(0));
+
+                                                String[] listData = productsCateg.get(0).split(";");
+                                                if (listData.length > 0) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
+                                                    productListView.setAdapter(adapter);
+                                                }
+
+                                                Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
+                                                sendStuff.putExtra("name", NameUser);
+                                                sendStuff.putExtra("email", EmailUser);
+                                                startActivity(sendStuff);
+                                                finish();
+                                        }
+                                        else if (count.counter >= productsName.size())
+                                        {
+                                            Intent sendStuff = new Intent(MainActivity.this, ListCategoryActivity.class);
+                                            sendStuff.putExtra("name", NameUser);
+                                            sendStuff.putExtra("email", EmailUser);
+                                            startActivity(sendStuff);
+                                            finish();
+
+                                            Log.d("Neeeeext", "Lista este afisata !");
+                                        }
+                                        else
+                                        {
+                                            if(count.counter < productsCateg.size()) {
+                                            productTextView.setText(productsName.get(count.counter));
+
+                                                String[] listData = productsCateg.get(count.counter).split(";");
+
+                                                if (listData.length > 0) {
+                                                    ListAdapter adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, listData);
+                                                    productListView.setAdapter(adapter);
+                                                }
+                                            }
+
+                                            count.counter++;
+                                        }
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                Intent sendStuff = new Intent(MainActivity.this, MainActivity.class);
+                                sendStuff.putExtra("name", NameUser);
+                                sendStuff.putExtra("email", EmailUser);
+                                startActivity(sendStuff);
+                                finish();
+                                Toast.makeText(MainActivity.this, "Nu s-au gasit produse!", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+                            });
+
+                        }
+                    }.start();
                 }
 
             }else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -641,6 +674,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
     private Boolean goBack = false;
     @Override

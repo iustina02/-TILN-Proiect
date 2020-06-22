@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#fff">
 
     <TextView
         android:id="@+id/recipe_title"
@@ -31,44 +32,45 @@
 
     <ImageView
         android:id="@+id/mily_Image"
-        android:layout_width="187dp"
-        android:layout_height="307dp"
-        android:layout_marginBottom="76dp"
+        android:layout_width="189dp"
+        android:layout_height="302dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/mily_steps"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recipe_subtitle" />
 
     <TextView
         android:id="@+id/mily_textview"
         android:layout_width="155dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="156dp"
+        android:layout_marginStart="22dp"
+        android:layout_marginLeft="22dp"
+        android:layout_marginTop="212dp"
         android:rotation="-4"
         android:text="MilyText"
         android:textSize="15dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.100"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recipe_subtitle" />
 
     <TextView
         android:id="@+id/step_textView"
-        android:layout_width="190dp"
-        android:layout_height="400dp"
-        android:layout_marginTop="100dp"
+        android:layout_width="170dp"
+        android:layout_height="350dp"
+        android:layout_marginTop="124dp"
         android:text="Step Text"
         android:textSize="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/mily_Image"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/next_step_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Urmatorul pas"
+        android:text=" Urmatorul pas "
+        android:textColor="#002673"
+        android:background="@drawable/buttonclickedright"
+        android:fontFamily="@font/sundaybest"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -76,10 +78,11 @@
         android:id="@+id/prev_step_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pasul anterios"
+        android:text=" Pasul anterior "
+        android:textColor="#002673"
+        android:background="@drawable/buttonclickedleft"
+        android:fontFamily="@font/sundaybest"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.049"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.971" />

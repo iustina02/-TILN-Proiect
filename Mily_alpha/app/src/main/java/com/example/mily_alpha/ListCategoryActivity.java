@@ -1,6 +1,7 @@
 package com.example.mily_alpha;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,11 +13,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mily_alpha.DB_Helper.DatabaseHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ListCategoryActivity extends AppCompatActivity {
 
@@ -45,6 +49,8 @@ public class ListCategoryActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frigider);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         Intent startingIntent = getIntent();
         NameUser = startingIntent.getStringExtra("name");
@@ -75,7 +81,7 @@ public class ListCategoryActivity extends AppCompatActivity {
         gustariButton.setVisibility(View.GONE);
 
 
-        databaseHelper = new DatabaseHelper(this);
+        databaseHelper = DatabaseHelper.getInstance(this);
 
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,11 +124,13 @@ public class ListCategoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setContentView(R.layout.activity_produs_categ);
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.hide();
                 final ListView seeProductByCateg = findViewById(R.id.list_products);
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -190,7 +198,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "cereale") != null) {
                                             list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "cereale");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -263,7 +271,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -331,7 +339,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "lactate") != null) {
                                             list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "lactate");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -404,7 +412,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -472,7 +480,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "carne") != null) {
                                             list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "carne");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -545,7 +553,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -613,7 +621,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "fruct") != null) {
                                             list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "fruct");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -686,7 +694,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -754,7 +762,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "legume") != null) {
                                             list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "legume");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -827,7 +835,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -895,7 +903,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "condiment") != null) {
                                             list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "condiment");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -968,7 +976,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                 final Button deleteProdusButon = findViewById(R.id.DeleteProdusButton);
                 final Button addToShoppingList = findViewById(R.id.AddToShoppingList);
 
-                final DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+                final DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
                 final TextView textViewDataExpiration = findViewById(R.id.dataExpirareTextView);
                 final TextView textViewCalories =  findViewById(R.id.caloriesTextView);
                 final int User_id = databaseHelper.getUserID(EmailUser, NameUser);
@@ -977,8 +985,8 @@ public class ListCategoryActivity extends AppCompatActivity {
                 Ingredient_id[0] = -1;
 
                 ArrayList<String> list_userIng_ids = new ArrayList<>();
-                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustari") != null) {
-                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustari");
+                if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustarisibauturi") != null) {
+                    list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustarisibauturi");
                 }
                 if(!list_userIng_ids.isEmpty())
                 {
@@ -1004,6 +1012,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                             seeProductByCateg.setAdapter(adapter);
                         }
 
+
 //                     Selectarea unui produs din lista dupa categorie
                         final ArrayList<String> finalList_Ing_ids= list_Ing_ids;
                         final ArrayList<String> finalList_userIng_ids = list_userIng_ids;
@@ -1024,6 +1033,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                                 Log.d("Produs in frigide", "Id ingredient !" + Ingredient_id[0]);
                                 Log.d("Produs in frigide", "User_Ing_id !" + finalList_userIng_ids.get(i));
 
+
                                 final String NumeProdus = seeProductByCateg.getItemAtPosition(i).toString();
 
                                 deleteProdusButon.setOnClickListener(new View.OnClickListener() {
@@ -1033,10 +1043,10 @@ public class ListCategoryActivity extends AppCompatActivity {
                                         databaseHelper.DeleteIngredientByUserIngID(User_Ingredient_Id);
 
                                         ArrayList<String> list_userIng_ids = new ArrayList<>();
-                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustari") != null) {
-                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustari");
+                                        if(databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustarisibauturi") != null) {
+                                            list_userIng_ids = databaseHelper.GetUserIngIDByCategAndUser(User_id, "gustarisibauturi");
                                         }
-                                        if(list_userIng_ids != null) {
+                                        if(!list_userIng_ids.isEmpty()) {
                                             ArrayList<String> list_Ing_ids = new ArrayList<>();
                                             int count = 0;
                                             for (String userIng_id : list_userIng_ids) {
@@ -1103,12 +1113,38 @@ public class ListCategoryActivity extends AppCompatActivity {
         populateList();
     }
 
+    private int check_date_expiration(String dataExpiration) {
+
+        SimpleDateFormat formatter= new SimpleDateFormat("yyyy/MM/dd");
+        Date date_now = new Date(System.currentTimeMillis());
+        String dateNow = formatter.format(date_now);
+
+        String[] year_month_day_expiration_date = dataExpiration.split("/");
+        String[] year_month_day_now = dateNow.split("/");
+        if (Integer.parseInt(year_month_day_expiration_date[0]) >= Integer.parseInt(year_month_day_now[0])) {
+            if (Integer.parseInt(year_month_day_expiration_date[1]) >= Integer.parseInt(year_month_day_now[1])) {
+                if (Integer.parseInt(year_month_day_expiration_date[2]) >=  (Integer.parseInt(year_month_day_now[2]) + 14)) {
+                    return 5;
+                } else if (Integer.parseInt(year_month_day_expiration_date[2]) >=  (Integer.parseInt(year_month_day_now[2]) + 10)) {
+                    return 4;
+                }
+                else if (Integer.parseInt(year_month_day_expiration_date[2]) >=  (Integer.parseInt(year_month_day_now[2]) + 5)) {
+                    return 3;
+                }
+                else if (Integer.parseInt(year_month_day_expiration_date[2]) >=  (Integer.parseInt(year_month_day_now[2]) + 3)) {
+                    return 2;
+                }
+            }
+        }
+        return 6;
+    }
+
     private void populateList() {
 
         Log.d(TAG, "populateListUsers: Displaying data in the ListView");
 
 //        UserDBHelper userDBHelper = new UserDBHelper(ListCategoryActivity.this);
-        DatabaseHelper databaseHelper = new DatabaseHelper(ListCategoryActivity.this);
+        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(ListCategoryActivity.this);
         int User_id = databaseHelper.getUserID(EmailUser, NameUser);
         ArrayList<String> listData = null;
 
@@ -1136,7 +1172,7 @@ public class ListCategoryActivity extends AppCompatActivity {
                     }else if (categ.equals("legume")) {
                         legumeButton.setVisibility(View.VISIBLE);
                         legumeButton.setEnabled(true);
-                    }else if (categ.equals("gustari")) {
+                    }else if (categ.equals("gustarisibauturi")) {
                         gustariButton.setVisibility(View.VISIBLE);
                         gustariButton.setEnabled(true);
                     }

@@ -1,4 +1,4 @@
-import .rowordnet
+import rowordnet
 from .synset import Synset
 from .rowordnet import intersection, merge, difference
 

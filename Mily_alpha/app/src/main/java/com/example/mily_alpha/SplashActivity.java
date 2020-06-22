@@ -2,7 +2,9 @@ package com.example.mily_alpha;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SplashActivity extends AppCompatActivity {
@@ -11,6 +13,14 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.loading);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
+
+        ImageView img  = findViewById(R.id.imageView);
+
+        img.setBackgroundResource(R.drawable.welcome);
 
         Thread welcomeThread = new Thread() {
 
@@ -18,13 +28,13 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 try {
                     super.run();
-                    sleep(10000);  //Delay of 10 seconds
+                    sleep(5000);  //Delay of 10 seconds
                 } catch (Exception e) {
 
                 } finally {
 
                     Intent i = new Intent(SplashActivity.this,
-                            MainActivity.class);
+                            LoginActivity.class);
                     startActivity(i);
                     finish();
                 }

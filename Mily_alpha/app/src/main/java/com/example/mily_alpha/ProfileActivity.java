@@ -1,8 +1,14 @@
 package com.example.mily_alpha;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,7 +29,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.squareup.picasso.Picasso;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import static com.example.mily_alpha.App.CHANNEL_1_ID;
 
 public class ProfileActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     DatabaseHelper databaseHelper;
@@ -54,11 +68,20 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
     private GoogleApiClient googleApiClient;
     private GoogleSignInOptions gso;
 
+    private NotificationManagerCompat notificationManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
+        Intent startingIntent = getIntent();
+        NameUser = startingIntent.getStringExtra("name");
+        EmailUser = startingIntent.getStringExtra("email");
+
+        notificationManager = NotificationManagerCompat.from(this);
 
         profileImage = findViewById(R.id.profileImageView);
         nameTextView = findViewById(R.id.nameTextView);
@@ -75,7 +98,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         Log.d("Namae User", "User name: " + NameUser);
         Log.d("Email User", "User email: " + EmailUser);
 
-        databaseHelper = new DatabaseHelper(this);
+        databaseHelper = DatabaseHelper.getInstance(this);
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
@@ -151,8 +174,37 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
             }
         });
 
+        if(NameUser != null && EmailUser != null){
+            check_data_expiration();
+        }
 
+    }
 
+    private void check_data_expiration() {
+        SimpleDateFormat formatter= new SimpleDateFormat("yyyy/MM/dd");
+        Date date_now = new Date(System.currentTimeMillis());
+        String dateNow = formatter.format(date_now);
+
+        int id_user = databaseHelper.getUserID(NameUser, EmailUser) + 1;
+        ArrayList<String> dates = databaseHelper.GetAllDataExpirationFromUser(id_user);
+        if(dates != null) {
+            for (String date : dates) {
+                if(!date.equals("Nici o data adaugata!")) {
+                    String[] year_month_day_expiration_date = date.split("/");
+                    String[] year_month_day_now = dateNow.split("/");
+
+                    if (Integer.parseInt(year_month_day_expiration_date[0]) >= Integer.parseInt(year_month_day_now[0])) {
+                        if (Integer.parseInt(year_month_day_expiration_date[1]) >= Integer.parseInt(year_month_day_now[1])) {
+                            if (Integer.parseInt(year_month_day_expiration_date[2]) > (Integer.parseInt(year_month_day_now[2]) + 4)) {
+                                continue;
+                            } else {
+                                sendOnChannel1("Data de expirare", "Exista produse in frigiderul tau ce urmeaza sa expire!");
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -169,6 +221,31 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
         finish();
     }
 
+    public void sendOnChannel1(String Title, String Message) {
+        // Create an Intent for the activity you want to start
+        Intent resultIntent = new Intent(this, ListCategoryActivity.class);
+        resultIntent.putExtra("name", NameUser);
+        resultIntent.putExtra("email",EmailUser);
+//        startActivity(resultIntent);
+//        finish();
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        // Get the PendingIntent containing the entire back stack
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+                .setSmallIcon(R.mipmap.ic_mily)
+                .setContentTitle(Title)
+                .setContentText(Message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setContentIntent(resultPendingIntent)
+                .build();
+        notificationManager.notify(1, notification);
+    }
+
     private void handleSignInResult(GoogleSignInResult result){
         if(result.isSuccess()){
 
@@ -181,6 +258,7 @@ public class ProfileActivity extends AppCompatActivity implements GoogleApiClien
             AddData(account.getEmail(),account.getDisplayName());
 
             Picasso.get().load(account.getPhotoUrl()).placeholder(R.mipmap.ic_launcher).into(profileImage);
+
         }else{
             Toast.makeText(ProfileActivity.this,"Log in Failed", Toast.LENGTH_SHORT).show();
             Log.w("Log in String: failed! ","Logged in failed!");

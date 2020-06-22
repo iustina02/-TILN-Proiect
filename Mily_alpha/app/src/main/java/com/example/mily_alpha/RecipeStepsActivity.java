@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ public class RecipeStepsActivity extends AppCompatActivity {
     public void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_steps);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         Intent startingIntent = getIntent();
         NameUser = startingIntent.getStringExtra("name");
@@ -150,25 +153,25 @@ public class RecipeStepsActivity extends AppCompatActivity {
                 text = "Incepem!";
                 break;
             case 2:
-                text = "Al treilea pas!";
+                text = "Al doilea pas!";
                 break;
             case 3:
                 text = "De aici devine interesant";
                 break;
             case 4:
-                text = "Cel de al cincilea pas!";
+                text = "Cel de al patrulea pas!";
                 break;
             case 5:
                 text = "Am ajuns deja asa departe!";
                 break;
             case 6:
-                text = "Pasul 7 este cel mai usor";
+                text = "Pasul 6 este cel mai usor";
                 break;
             case 7:
                 text = "Ador pasul asta!";
                 break;
             case 8:
-                text = "Al noualea pas!";
+                text = "Al 8-lea pas!";
                 break;
             default:
                 // code block

@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#fff">
 
 
     <EditText
@@ -63,6 +64,9 @@
         android:layout_height="47dp"
         android:layout_marginTop="12dp"
         android:text="Alte categorii"
+        android:textColor="#002673"
+        android:fontFamily="@font/sundaybest"
+        android:background="@drawable/buttonclickedcenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
@@ -93,26 +97,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:background="@drawable/buttonclickedleft"
+        android:fontFamily="@font/sundaybest"
         android:text="Adauga"
+        android:textColor="#002673"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/nextButton"
-        app:layout_constraintHorizontal_bias="0.307"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollView2"
-        app:layout_constraintVertical_bias="0.325" />
+        app:layout_constraintVertical_bias="0.437" />
 
     <Button
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="28dp"
-        android:layout_marginRight="28dp"
-        android:text="Urmatorul produs"
+        android:background="@drawable/buttonclickedright"
+        android:fontFamily="@font/sundaybest"
+        android:text=" Urmatorul "
+        android:textColor="#002673"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scrollView2"
-        app:layout_constraintVertical_bias="0.325" />
+        app:layout_constraintVertical_bias="0.437" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,6 +13,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mily_alpha.DB_Helper.DatabaseHelper;
@@ -25,7 +26,7 @@ public class SearchRecipeActivity extends AppCompatActivity {
 
     public String NameUser;
     public String EmailUser;
-    public DatabaseHelper databaseHelper = new DatabaseHelper(this);
+    public DatabaseHelper databaseHelper = DatabaseHelper.getInstance(this);
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     private Button profileButton;
     private Button addProductButton;
@@ -47,6 +48,8 @@ public class SearchRecipeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchrecipe);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         Intent startingIntent = getIntent();
         NameUser = startingIntent.getStringExtra("name");
@@ -114,6 +117,10 @@ public class SearchRecipeActivity extends AppCompatActivity {
         }
 
         if (!CategoriiDisponibile.isEmpty()) {
+            if (CategoriiDisponibile.contains("gustarisibauturi")) {
+                CategoriiDisponibile.remove("gustarisibauturi");
+                CategoriiDisponibile.add("gustari si bauturi");
+            }
             ListAdapter categ = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_multiple_choice, CategoriiDisponibile);
             categDisponibileListView.setAdapter(categ);
         }
@@ -187,6 +194,10 @@ public class SearchRecipeActivity extends AppCompatActivity {
                 }
                 if(search_categ.size() > 0){
                     // Cautare reteta dupa tipul retetei si categorii
+                    if (search_categ.contains("gustari si bauturi")) {
+                        search_categ.remove("gustari si bauturi");
+                        search_categ.add("gustarisibauturi");
+                    }
                     Log.d("SR","Check categ: " + search_categ);
                     id_recipes = databaseHelper.searchRecipesAfterCategory_returnListIdRetete(tipul_retetei,search_categ);
                     Log.d("SP","Found recipes id: " + id_recipes);
@@ -194,6 +205,8 @@ public class SearchRecipeActivity extends AppCompatActivity {
 
                 if(!id_recipes.isEmpty()) {
                     setContentView(R.layout.activity_list_recipes);
+                    ActionBar actionBar = getSupportActionBar();
+                    actionBar.hide();
                     goBack = 1;
                     ListView recipes_listView = findViewById(R.id.recipes_listview);
 
@@ -212,10 +225,11 @@ public class SearchRecipeActivity extends AppCompatActivity {
                     RecipeListView adapter = new RecipeListView(SearchRecipeActivity.this, Names,Times, Img_numbers_drawable);
                     recipes_listView.setAdapter(adapter);
 
+                    final ArrayList<String> finalId_recipes = id_recipes;
                     recipes_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                            openDialog(position+1);
+                            openDialog(Integer.parseInt(finalId_recipes.get(position)));
                         }
                     });
                 }

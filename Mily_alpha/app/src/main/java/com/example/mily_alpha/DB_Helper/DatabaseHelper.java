@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private static DatabaseHelper mInstance = null;
+
     private static final String TAG = "DatabaseHelper";
     private static final int DATABASE_VERSION = 14;
     public static final String DATABASE_NAME = "AlphaMily.db";
@@ -105,8 +108,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String RECIPE_TABLE_COL_7 = "Name";
 
 
-    public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    private DatabaseHelper(Context ctx) {
+        super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -141,6 +144,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + RECIPE_TABLE);
 
         onCreate(db);
+    }
+
+    public static DatabaseHelper getInstance(Context ctx) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (mInstance == null) {
+            mInstance = new DatabaseHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
     }
 
 
@@ -218,7 +232,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //    INGREDIENT ACTIONS
     public boolean addIngredient(String ingredient_name) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = mInstance.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
 
@@ -230,15 +244,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(INGREDIENT_TABLE_COL_2, Ingredient_calories);
             Log.d(TAG, "addData: Adding " + ingredient_name + " to " + INGREDIENT_TABLE);
 
-            db.beginTransaction();
-            try {
-                db.insert(INGREDIENT_TABLE, null, contentValues);
-                db.setTransactionSuccessful();
+            db.insert(INGREDIENT_TABLE, null, contentValues);
 
-                return true;
-            } finally {
-                db.endTransaction();
-            }
+
+            return true;
 
         } else {
             Log.d(TAG, "Ingredient already exists in database !");
@@ -248,25 +257,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean checkIngredientExists(String ingredient_name) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.beginTransaction();
         Cursor data;
-        try {
-            data = db.rawQuery("select * from " + INGREDIENT_TABLE + " where ingredient_name = ? ", new String[]{ingredient_name}, null);
-            db.setTransactionSuccessful();
+        data = db.rawQuery("select * from " + INGREDIENT_TABLE + " where ingredient_name = ? ", new String[]{ingredient_name}, null);
 
-            ArrayList<String> listData = new ArrayList<>();
-            while (data.moveToNext()) {
-                listData.add(data.getString(1));
-            }
-            if (!listData.isEmpty()) {
-                //daca exista un rezultat in lista => exista acel user
-                return true;
-            } else {
-                //daca exista nu un rezultat in lista
-                return false;
-            }
-        } finally {
-            db.endTransaction();
+        ArrayList<String> listData = new ArrayList<>();
+        while (data.moveToNext()) {
+            listData.add(data.getString(1));
+        }
+        if (!listData.isEmpty()) {
+            //daca exista un rezultat in lista => exista acel user
+            return true;
+        } else {
+            //daca exista nu un rezultat in lista
+            return false;
         }
     }
 
@@ -289,22 +292,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor data;
 
-        db.beginTransaction();
-        try {
-            data = db.rawQuery("select Ingredient_id from " + INGREDIENT_TABLE + " where ingredient_name = ?", new String[]{ingredient_name}, null);
-            db.setTransactionSuccessful();
 
-            ArrayList<String> listData = new ArrayList<>();
-            while (data.moveToNext()) {
-                listData.add(data.getString(0));
-            }
-            if (!listData.isEmpty())
-                return Integer.parseInt(listData.get(0));
-            else
-                return 0;
-        } finally {
-            db.endTransaction();
+        data = db.rawQuery("select Ingredient_id from " + INGREDIENT_TABLE + " where ingredient_name = ?", new String[]{ingredient_name}, null);
+
+        ArrayList<String> listData = new ArrayList<>();
+        while (data.moveToNext()) {
+            listData.add(data.getString(0));
         }
+        if (!listData.isEmpty())
+            return Integer.parseInt(listData.get(0));
+        else
+            return 0;
     }
 
     public void deleteIngredients() {
@@ -347,6 +345,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void populate_calories() {
         int ind = addCalories("GRANIA FAINOOO 1KG", 358);
+        addCalories("GRANIA FAIN000 1KG", 358);
+        addCalories("GRANIA FAINO0O 1KG", 358);
+        addCalories("GRANIA FAIN00O 1KG", 358);
+        addCalories("GRANIA FAINOO0 1KG", 358);
+        addCalories(" GRANIA FAINOOO 1KG", 358);
+        addCalories("ZUZU TAURT 0.1%", 54);
+        addCalories("ZUZU IAURT 0.1%", 54);
+        addCalories("2UZU IAURT 0.1%", 54);
+        addCalories("2UZU TAURT 0.1%", 54);
+        addCalories("LADORNA UNT65%200G", 746);
+        addCalories("PAMBAC MELCI 400G", 350);
+        addCalories("FOX SUNCA PRAGA", 105);
         Log.d("Calories id", "Calories id: " + ind);
     }
 
@@ -452,6 +462,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (!listData.isEmpty())
             return listData.get(0);
+        else
+            return null;
+    }
+
+    public ArrayList<String> GetAllDataExpirationFromUser(int user_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("select Date from " + USER_INGR_TABLE + " where " + USER_INGR_TABLE_COL_1 + " = ? ", new String[]{user_id + ""}, null);
+
+        ArrayList<String> listData = new ArrayList<>();
+        while (data.moveToNext()) {
+            listData.add(data.getString(0));
+        }
+        if (!listData.isEmpty())
+            return listData;
         else
             return null;
     }
@@ -981,9 +1005,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void populate_recipes(){
         int recipe_ing_id = addRecipeIngredient("Avocado x2","Ceapa x1","Lamaie / Lime x1 lingura","Ardei-iute x2","Coriandru","Rosie x1/2","Sare x1/2 lingurita","Piper","","","","","","","","","","","","");
         int recipe_steps_id = addRecipeSteps("Curata fructele de avocado de coaja, scoate samburele si zdrobeste-le intr-un bol cu ajutorul unei furculite.","Adauga rosia, sarea si sucul de lamaie.","Toaca ceapa marunt si adaug-o in pasta impreuna cu piperul, coriandrul si ardeiul iute.","Amesteca bine toate ingredientele pana se omogenizeaza.","Acopera bolul de guacamole cu o folie de plastic si tine-l la frigider","Este indicat sa il consumi proaspat, deoarece pulpa fructului se oxideaza foarte usor.","","","","","","","","","","","","","","");
-        int recipe_categ_id = addRecipeCateg("fruct","condimente","legume","","","","");
+        int recipe_categ_id = addRecipeCateg("fruct","condimente","leguma","","","","");
 
         int recipe_id = addRecipe("gustare","20 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,1,"Guacamole");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+
+
+        recipe_ing_id = addRecipeIngredient("Faina 250g","Lapte 550ml","Oua x3","Ulei / Unt 40ml","Sare","Vanilie","","","","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps("Punem ouale intr-un vas, adaugam sarea si amestecam pana se omogenizeaza. Cernem faina si o adaugam treptat in vas, cate 2-3 linguri deodata.","Amestecam laptele la temperatura camerei cu uleiul.","Cand aluatul incepe sa capete consistenta, adaugam cate 50-60 ml din mixul de lapte si ulei. Amestecam pana cand aluatul devine din nou fluid.","Continuam, adaugand alternativ faina si lapte, si amestecam bine dupa fiecare portie adaugata aluatului.","In compozitia finala, incorporam semintele unei pastai de vanilie, apoi lasam aluatul 20 -30 de minute pe masa din bucatarie.","EPunem un polonic de aluat de in tigaia incinsa. Coacem clatitele, in tigaia incinsa si unsa de fiecare data cand adaugam aluat. Timpul de coacere este de cate 1-2 minute","","","","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("cereale","condimente","lactate","","","","");
+
+        recipe_id = addRecipe("desert","45 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,2,"Clatite");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+
+
+        recipe_ing_id = addRecipeIngredient("Faina 250g","Lapte 550ml","Oua x3","Ulei / Unt 40ml","Sare","Vanilie","","","","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps("Punem ouale intr-un vas, adaugam sarea si amestecam pana se omogenizeaza. Cernem faina si o adaugam treptat in vas, cate 2-3 linguri deodata.","Amestecam laptele la temperatura camerei cu uleiul.","Cand aluatul incepe sa capete consistenta, adaugam cate 50-60 ml din mixul de lapte si ulei. Amestecam pana cand aluatul devine din nou fluid.","Continuam, adaugand alternativ faina si lapte, si amestecam bine dupa fiecare portie adaugata aluatului.","In compozitia finala, incorporam semintele unei pastai de vanilie, apoi lasam aluatul 20 -30 de minute pe masa din bucatarie.","EPunem un polonic de aluat de in tigaia incinsa. Coacem clatitele, in tigaia incinsa si unsa de fiecare data cand adaugam aluat. Timpul de coacere este de cate 1-2 minute","","","","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("cereale","condimente","lactate","","","","");
+
+        recipe_id = addRecipe("micdejun","45 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,2,"Clatite");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+
+
+        recipe_ing_id = addRecipeIngredient("Oua x3","Sunca 50g","Verdeata","Unt x1 lingura","Sare","Piper","","","","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps("Într-un vas se sparg 2-3 ouă, în funcție de cât de mare dorim să fie porția pregătită.","Se bat foarte bine cu un tel sau cu o furculiță Prin baterea ouălor foarte bine se va încorpora aer, rezultând o omletă pufoasă și aerată.","Se asezonează cu sare și piper. Șunca se taie după preferințe. ","Se pune șunca în tigaia încinsă, se ajustează focul și se amestecă cu o lingură de lemn, până se rumenește puțin.","Se împrăștie șunca cât mai uniform în tigaie și deasupra, se toarnă ouăle bătute, turnându-le cât mai omogen pe toată suprafața.","Se agită viguros tigaia înainte și înapoi deasupra focului timp de un minut, timp în care cu o spatulă termorezistentă se amestecă ouăle continuu.","O transferăm pe farfurie, lăsând-o să alunece ușor din tigaie.","","","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("carne","condimente","lactate","","","","");
+
+        recipe_id = addRecipe("micdejun","15 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,3,"Omleta cu sunca");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+
+
+        recipe_ing_id = addRecipeIngredient("Paste 400g","Ton 250g","Sos.de.rosii 500ml","Usturoi x5","Oregano x2 lingurita","Busuioc","Ceapa x1","Sare","Piper","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps("Pentru început, pune pastele la fiert.Cât timp fierb, toacă ceapa şi usturoiul şi pune-le într-o tigaie la călit, în uleiul scurs din conserva de ton.","Peste ceapa şi usturoiul călite adaugă cutia de roşii pasate şi lasă totul să fiarbă timp de 5 minute, la foc mediu.","După scurgerea timpului, adaugă busuiocul şi mai lasă să fiarbă încă 10 minute, până ce conţinutul tigăii scade."," Condimentează cu sare şi piper şi adaugă peste sosul din tigaie şi tonul mărunţit.","Mai lasă ingredientele pe foc încă 4-5 minute.","Între timp, scoate pastele de la fiert şi lasă-le la scurs într-o strecurătoare.","Când sosul este gata, toarnă-l peste paste şi încorporează-l în ele.","","","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("carne","condimente","cereale","legume","","","");
+
+        recipe_id = addRecipe("pranz","15 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,4,"Paste cu ton");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+
+
+        recipe_ing_id = addRecipeIngredient("Piept.de.pui x1","Morcov x3","Cartofi x3","Apa 700ml","Curry.cuburi x3","Miere x1 lingura","Ketchup.picant x1 lingura","Ulei x2 lingura","Ceapa x4","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps("Usturoiul se feliază subțire și se călește puțin cu uleiul. Se adaugă ceapa tăiată julien și se călesc împreună, până se înmoaie și ceapa devine translucidă.","Adăugăm pieptul de pui tăiat cubulețe și amestecăm constant, până ce puiul devine alb.","Punem morcovii tăiați rondele, amestecăm, lăsăm toate ingredientele încă puțin, apoi adăugăm și cartofii tăiați cuburi și apa.","Lăsăm să fiarbă la foc mic, sub capac. Când cartofii sunt pătrunși, încorporăm cuburile de curry, mierea și ketchupul.","Le mai lăsăm să fiarbă nițel, amestecând din când în când, până se îngroașe.","Et voila! Servim cu orez proaspăt fiert și savurăm minunăția asta care te face să spui „mhmmmm” la fiecare înghițitură.","","","","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("carne","condimente","legume","","","","");
+
+        recipe_id = addRecipe("cina","30 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,5,"Curry japonez");
         Log.d("DB","Reteta id: " + recipe_id);
     }
 

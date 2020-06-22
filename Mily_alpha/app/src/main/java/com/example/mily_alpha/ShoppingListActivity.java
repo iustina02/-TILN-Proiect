@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mily_alpha.DB_Helper.DatabaseHelper;
@@ -32,7 +33,7 @@ public class ShoppingListActivity extends AppCompatActivity {
 
     public String NameUser;
     public String EmailUser;
-    public DatabaseHelper databaseHelper = new DatabaseHelper(this);
+    public DatabaseHelper databaseHelper =  DatabaseHelper.getInstance(this);
     private DatePickerDialog.OnDateSetListener mDateSetListener;
 
     public ListView listView;
@@ -41,6 +42,8 @@ public class ShoppingListActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shoppinglist);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
 
         Intent startingIntent = getIntent();
