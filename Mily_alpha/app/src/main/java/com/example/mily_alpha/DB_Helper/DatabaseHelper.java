@@ -357,6 +357,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         addCalories("LADORNA UNT65%200G", 746);
         addCalories("PAMBAC MELCI 400G", 350);
         addCalories("FOX SUNCA PRAGA", 105);
+        addCalories("K-PUR TOCATA 1KG", 316);
+        addCalories("ARIPI PUI TAVA", 205);
+        addCalories("ZUZU LAPTE 3.5% 1L", 62);
+        addCalories("BOR FAINA 000 1KG", 346);
+        addCalories("LAPT CU CAIM LAPTE", 70);
+        addCalories("USTUROI", 40);
+        addCalories("ARDEI ROSU", 31);
+        addCalories("CHIO CHIPS100G", 538);
+        addCalories("LAY S CHIPS 100G", 490);
+        addCalories("LAY S BARBECUE 70 G", 490);
+        addCalories("MUESLI FRUCTE", 370);
+        addCalories("BNS SPAGHETTI 600G", 335);
+
+
         Log.d("Calories id", "Calories id: " + ind);
     }
 
@@ -653,9 +667,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<String> searchRecipesAfterIngredient_returnListIdRetete(String tip, ArrayList<String> ingredients){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor ids_retete_1;
-        String type = tip.toLowerCase().replace(" ","");
+        if(tip.equals("Selecteaza:")){
+            ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE , new String[]{}, null);
+        }
+        else {
 
-        ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE + " where " + RECIPE_TABLE_COL_1 + " = ? ", new String[]{type}, null);
+            String type = tip.toLowerCase().replace(" ", "");
+
+            ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 + ", " + RECIPE_TABLE_COL_3 + " from " + RECIPE_TABLE + " where " + RECIPE_TABLE_COL_1 + " = ? ", new String[]{type}, null);
+        }
 
         ArrayList<String> ids_retete_return = new ArrayList<>();
 
@@ -686,9 +706,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<String> searchRecipesAfterCategory_returnListIdRetete(String tip, ArrayList<String> categories){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor ids_retete_1;
-        String type = tip.toLowerCase().replace(" ","");
 
-        ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE + " where " + RECIPE_TABLE_COL_1 + " = ? ", new String[]{type}, null);
+
+        if(tip.equals("Selecteaza:")){
+            ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE, new String[]{}, null);
+        }
+        else {
+
+            String type = tip.toLowerCase().replace(" ", "");
+
+            ids_retete_1 = db.rawQuery("select " + RECIPE_TABLE_COL_0 +", "+ RECIPE_TABLE_COL_3  + " from " + RECIPE_TABLE + " where " + RECIPE_TABLE_COL_1 + " = ? ", new String[]{type}, null);
+        }
 
         ArrayList<String> ids_retete_return = new ArrayList<>();
 
@@ -1005,7 +1033,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void populate_recipes(){
         int recipe_ing_id = addRecipeIngredient("Avocado x2","Ceapa x1","Lamaie / Lime x1 lingura","Ardei-iute x2","Coriandru","Rosie x1/2","Sare x1/2 lingurita","Piper","","","","","","","","","","","","");
         int recipe_steps_id = addRecipeSteps("Curata fructele de avocado de coaja, scoate samburele si zdrobeste-le intr-un bol cu ajutorul unei furculite.","Adauga rosia, sarea si sucul de lamaie.","Toaca ceapa marunt si adaug-o in pasta impreuna cu piperul, coriandrul si ardeiul iute.","Amesteca bine toate ingredientele pana se omogenizeaza.","Acopera bolul de guacamole cu o folie de plastic si tine-l la frigider","Este indicat sa il consumi proaspat, deoarece pulpa fructului se oxideaza foarte usor.","","","","","","","","","","","","","","");
-        int recipe_categ_id = addRecipeCateg("fruct","condimente","leguma","","","","");
+        int recipe_categ_id = addRecipeCateg("fruct","condiment","leguma","","","","");
 
         int recipe_id = addRecipe("gustare","20 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,1,"Guacamole");
         Log.d("DB","Reteta id: " + recipe_id);
@@ -1014,34 +1042,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         recipe_ing_id = addRecipeIngredient("Faina 250g","Lapte 550ml","Oua x3","Ulei / Unt 40ml","Sare","Vanilie","","","","","","","","","","","","","","");
         recipe_steps_id = addRecipeSteps("Punem ouale intr-un vas, adaugam sarea si amestecam pana se omogenizeaza. Cernem faina si o adaugam treptat in vas, cate 2-3 linguri deodata.","Amestecam laptele la temperatura camerei cu uleiul.","Cand aluatul incepe sa capete consistenta, adaugam cate 50-60 ml din mixul de lapte si ulei. Amestecam pana cand aluatul devine din nou fluid.","Continuam, adaugand alternativ faina si lapte, si amestecam bine dupa fiecare portie adaugata aluatului.","In compozitia finala, incorporam semintele unei pastai de vanilie, apoi lasam aluatul 20 -30 de minute pe masa din bucatarie.","EPunem un polonic de aluat de in tigaia incinsa. Coacem clatitele, in tigaia incinsa si unsa de fiecare data cand adaugam aluat. Timpul de coacere este de cate 1-2 minute","","","","","","","","","","","","","","");
-        recipe_categ_id = addRecipeCateg("cereale","condimente","lactate","","","","");
+        recipe_categ_id = addRecipeCateg("cereale","condiment","lactate","","","","");
 
         recipe_id = addRecipe("desert","45 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,2,"Clatite");
         Log.d("DB","Reteta id: " + recipe_id);
 
 
 
-        recipe_ing_id = addRecipeIngredient("Faina 250g","Lapte 550ml","Oua x3","Ulei / Unt 40ml","Sare","Vanilie","","","","","","","","","","","","","","");
-        recipe_steps_id = addRecipeSteps("Punem ouale intr-un vas, adaugam sarea si amestecam pana se omogenizeaza. Cernem faina si o adaugam treptat in vas, cate 2-3 linguri deodata.","Amestecam laptele la temperatura camerei cu uleiul.","Cand aluatul incepe sa capete consistenta, adaugam cate 50-60 ml din mixul de lapte si ulei. Amestecam pana cand aluatul devine din nou fluid.","Continuam, adaugand alternativ faina si lapte, si amestecam bine dupa fiecare portie adaugata aluatului.","In compozitia finala, incorporam semintele unei pastai de vanilie, apoi lasam aluatul 20 -30 de minute pe masa din bucatarie.","EPunem un polonic de aluat de in tigaia incinsa. Coacem clatitele, in tigaia incinsa si unsa de fiecare data cand adaugam aluat. Timpul de coacere este de cate 1-2 minute","","","","","","","","","","","","","","");
-        recipe_categ_id = addRecipeCateg("cereale","condimente","lactate","","","","");
-
-        recipe_id = addRecipe("micdejun","45 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,2,"Clatite");
-        Log.d("DB","Reteta id: " + recipe_id);
-
-
-
         recipe_ing_id = addRecipeIngredient("Oua x3","Sunca 50g","Verdeata","Unt x1 lingura","Sare","Piper","","","","","","","","","","","","","","");
         recipe_steps_id = addRecipeSteps("Într-un vas se sparg 2-3 ouă, în funcție de cât de mare dorim să fie porția pregătită.","Se bat foarte bine cu un tel sau cu o furculiță Prin baterea ouălor foarte bine se va încorpora aer, rezultând o omletă pufoasă și aerată.","Se asezonează cu sare și piper. Șunca se taie după preferințe. ","Se pune șunca în tigaia încinsă, se ajustează focul și se amestecă cu o lingură de lemn, până se rumenește puțin.","Se împrăștie șunca cât mai uniform în tigaie și deasupra, se toarnă ouăle bătute, turnându-le cât mai omogen pe toată suprafața.","Se agită viguros tigaia înainte și înapoi deasupra focului timp de un minut, timp în care cu o spatulă termorezistentă se amestecă ouăle continuu.","O transferăm pe farfurie, lăsând-o să alunece ușor din tigaie.","","","","","","","","","","","","","");
-        recipe_categ_id = addRecipeCateg("carne","condimente","lactate","","","","");
+        recipe_categ_id = addRecipeCateg("carne","condiment","lactate","","","","");
 
         recipe_id = addRecipe("micdejun","15 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,3,"Omleta cu sunca");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+        recipe_ing_id = addRecipeIngredient("Faina integrala 600g","Faina alba 60g","Praf de copt 2g","Zahar vanilat x1","Oua x2","Unt topit 30g","Lapte 175ml","Sare","","","","","","","","","","","","");
+//        recipe_steps_id = addRecipeSteps("","","","","","","","","","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps(" Într-un castron, făina se amestecă bine cu praful de copt. Separat, ouăle întregi se bat cu sarea și zahărul vanilat, cu un tel în formă de pară.","Se adaugă succesiv peste ouă câte 2-3 linguri de făină și câte puțin lapte, amestecând viguros după fiecare nouă tranșă de făină adăugată, evitând formarea cocoloașelor."," În final, se adaugă untul topit, dar nu fierbinte, și se omogenizează. Aluatul pentru vafe belgiene trebuie să fie cu ceva mai dens decât cel pentru clătite."," Am copt imediat vafele în aparatul deja încins. Opțional, se pot unge plăcile cu puțin unt topit sau ulei, dar nu e obligatoriu. ","","","","","","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("cereale","condimente","lactate","","","","");
+
+        recipe_id = addRecipe("micdejun","30 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,6,"Vafe belgiene");
+        Log.d("DB","Reteta id: " + recipe_id);
+
+        recipe_ing_id = addRecipeIngredient("Tortilla x2","Branza 100g","Ardei x2","Ceapa.verde x2","Rosii x6","Porumb","Chilli","Sare","Piper","","","","","","","","","","","");
+        recipe_steps_id = addRecipeSteps("Cașcavalul se rade pe răzătoarea cu ochiuri mari. Se gustă pentru a vedea dacă e sărat și dacă are nevoie de asezonare . ","Se spală și se curăță legumele. Am scos cotorul de la ardei, am curățat de semințele și am tăiat pulpa cubulețe.","Se curăță și se taie ceapa verde, am adăugat în umplutură inclusiv frunzele verzi.","Se spală roșiile și se feliază.","Se pune tortilla la încălzit. După 10 secunde, se întoarce pe cealaltă parte. Se repetă această întoarcere de pe o parte pe alta la 10 secunde distanță de câteva ori. ","Se presară jumătate din cantitatea de brânză pe toată suprafața aluatului. Peste brânză, se presară restul ingredientelor. Nu se pune un strat prea gros de ingrediente.","Se reduce flacăra și se acoperă cu un capac.","Când brânza s-a topit, folosind o spatulă, se întoarce o parte a tortillei peste cealaltă jumătate ca la omletă."," Se ia de pe foc, se pune pe platoul de servire.Servită alături de guacamole, quesadilla este un adevărat deliciu.","","","","","","","","","","","");
+        recipe_categ_id = addRecipeCateg("leguma","condimente","","","","","");
+
+        recipe_id = addRecipe("micdejun","25 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,7,"Quesadilla mexicana");
         Log.d("DB","Reteta id: " + recipe_id);
 
 
 
         recipe_ing_id = addRecipeIngredient("Paste 400g","Ton 250g","Sos.de.rosii 500ml","Usturoi x5","Oregano x2 lingurita","Busuioc","Ceapa x1","Sare","Piper","","","","","","","","","","","");
         recipe_steps_id = addRecipeSteps("Pentru început, pune pastele la fiert.Cât timp fierb, toacă ceapa şi usturoiul şi pune-le într-o tigaie la călit, în uleiul scurs din conserva de ton.","Peste ceapa şi usturoiul călite adaugă cutia de roşii pasate şi lasă totul să fiarbă timp de 5 minute, la foc mediu.","După scurgerea timpului, adaugă busuiocul şi mai lasă să fiarbă încă 10 minute, până ce conţinutul tigăii scade."," Condimentează cu sare şi piper şi adaugă peste sosul din tigaie şi tonul mărunţit.","Mai lasă ingredientele pe foc încă 4-5 minute.","Între timp, scoate pastele de la fiert şi lasă-le la scurs într-o strecurătoare.","Când sosul este gata, toarnă-l peste paste şi încorporează-l în ele.","","","","","","","","","","","","","");
-        recipe_categ_id = addRecipeCateg("carne","condimente","cereale","legume","","","");
+        recipe_categ_id = addRecipeCateg("carne","condimente","cereale","leguma","","","");
 
         recipe_id = addRecipe("pranz","15 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,4,"Paste cu ton");
         Log.d("DB","Reteta id: " + recipe_id);
@@ -1050,10 +1084,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         recipe_ing_id = addRecipeIngredient("Piept.de.pui x1","Morcov x3","Cartofi x3","Apa 700ml","Curry.cuburi x3","Miere x1 lingura","Ketchup.picant x1 lingura","Ulei x2 lingura","Ceapa x4","","","","","","","","","","","");
         recipe_steps_id = addRecipeSteps("Usturoiul se feliază subțire și se călește puțin cu uleiul. Se adaugă ceapa tăiată julien și se călesc împreună, până se înmoaie și ceapa devine translucidă.","Adăugăm pieptul de pui tăiat cubulețe și amestecăm constant, până ce puiul devine alb.","Punem morcovii tăiați rondele, amestecăm, lăsăm toate ingredientele încă puțin, apoi adăugăm și cartofii tăiați cuburi și apa.","Lăsăm să fiarbă la foc mic, sub capac. Când cartofii sunt pătrunși, încorporăm cuburile de curry, mierea și ketchupul.","Le mai lăsăm să fiarbă nițel, amestecând din când în când, până se îngroașe.","Et voila! Servim cu orez proaspăt fiert și savurăm minunăția asta care te face să spui „mhmmmm” la fiecare înghițitură.","","","","","","","","","","","","","","");
-        recipe_categ_id = addRecipeCateg("carne","condimente","legume","","","","");
+        recipe_categ_id = addRecipeCateg("carne","condimente","leguma","","","","");
 
         recipe_id = addRecipe("cina","30 min",recipe_ing_id,recipe_steps_id,recipe_categ_id,5,"Curry japonez");
         Log.d("DB","Reteta id: " + recipe_id);
+
+
     }
 
 

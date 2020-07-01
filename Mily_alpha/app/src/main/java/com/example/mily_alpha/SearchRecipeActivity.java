@@ -121,6 +121,10 @@ public class SearchRecipeActivity extends AppCompatActivity {
                 CategoriiDisponibile.remove("gustarisibauturi");
                 CategoriiDisponibile.add("gustari si bauturi");
             }
+            if (CategoriiDisponibile.contains("produsdincereale")) {
+                CategoriiDisponibile.remove("produsdincereale");
+                CategoriiDisponibile.add("produs din cereale");
+            }
             ListAdapter categ = new ArrayAdapter<>(SearchRecipeActivity.this, android.R.layout.simple_list_item_multiple_choice, CategoriiDisponibile);
             categDisponibileListView.setAdapter(categ);
         }
@@ -197,6 +201,10 @@ public class SearchRecipeActivity extends AppCompatActivity {
                     if (search_categ.contains("gustari si bauturi")) {
                         search_categ.remove("gustari si bauturi");
                         search_categ.add("gustarisibauturi");
+                    }
+                    if (search_categ.contains("produs din cereale")) {
+                        search_categ.remove("produs din cereale");
+                        search_categ.add("produsdincereale");
                     }
                     Log.d("SR","Check categ: " + search_categ);
                     id_recipes = databaseHelper.searchRecipesAfterCategory_returnListIdRetete(tipul_retetei,search_categ);

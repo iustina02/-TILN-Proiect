@@ -78,41 +78,26 @@
 
     <Button
         android:id="@+id/categDisponibile_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="170dp"
+        android:layout_height="48dp"
         android:layout_marginTop="112dp"
+        android:background="@drawable/buttonclickedleft"
+        android:fontFamily="@font/sundaybest"
         android:text=" Categoriile mele "
         android:textColor="#002673"
-        android:background="@drawable/buttonclickedcenter"
-        android:fontFamily="@font/sundaybest"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.076"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/toateIngredientele_button"
-        android:layout_width="wrap_content"
+        android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="112dp"
+        android:background="@drawable/buttonclickedright"
+        android:fontFamily="@font/sundaybest"
         android:text=" Ingrediente "
         android:textColor="#002673"
-        android:background="@drawable/buttonclickedcenter"
-        android:fontFamily="@font/sundaybest"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.94"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/sau"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="124dp"
-        android:text="SAU"
-        android:textSize="20dp"
-        app:layout_constraintEnd_toStartOf="@+id/toateIngredientele_button"
-        app:layout_constraintStart_toEndOf="@+id/categDisponibile_button"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView

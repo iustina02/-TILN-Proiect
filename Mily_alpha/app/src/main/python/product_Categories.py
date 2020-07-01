@@ -43,7 +43,7 @@ def test(arg1):
     # print(unaccednted_string)
 
     list_antent = ["str", "nr.", "jud.", "mun.", "cod", "identificare","fiscala", "lel", "mun","klc","kalfland","romania","s.c.s","bld.","nr","mn.","ideniificare","fiscala:"]
-    list_preturi = ["buc", "x", "c","b","t/a d","ocu/","lel","bucx","le","e","total","lei"]
+    list_preturi = ["buc", "x", "c","b","t/a d","ocu/","lel","bucx","le","e","total","lei","duc","vuc"]
 
     argSplit = arg1.split("\n")
 
@@ -80,7 +80,7 @@ def test(arg1):
     list_carne = ["tocata","carne","ceafa","vita","ton","icre","aripi","pulpe","piept","ou","oua","mici","kaizer","pate","muschi","sardine","os"]
     list_condimente = ["drojdie","pasta","zahar","ulei","esenta","ketchup","condimente","marar","miere","droudie"]
     list_legume = ["rosii","ardei","champignon","varza","telina","fasole","castravet","brocoli","morcovi"]
-    list_fructe = ["fructe","avocado-ready-to-eat","banane/","portocale","mandarine"]
+    list_fructe = ["fructe","avocado-ready-to-eat","banane/","portocale","mandarine","masl"]
 
     Produs_Catego = {}
 
@@ -94,6 +94,9 @@ def test(arg1):
             if(non_product.lower() == "tva"):
                 return "end"
         if pass_this == False:
+            produ = produ.replace(",",".")
+            while produ[0] == " ":
+                produ = produ[1:]
             for wrd in argSplit2:
                 print("Word in produs: " + wrd)
                 wrd = wrd.lower()
@@ -117,7 +120,7 @@ def test(arg1):
                         Produs_Catego[produ] = "carne,"
                         break
                     if wrd in list_branduri_cereale:
-                        Produs_Catego[produ] = "faina; gris; malai,"
+                        Produs_Catego[produ] = "produs din cereale,"
                         break
                     if wrd in list_branduri_acool:
                         Produs_Catego[produ] = "gustari si bauturi,"
@@ -141,6 +144,7 @@ def test(arg1):
                     if wrd == "dovlecei":
                         wrd = "dovleac"
 
+                    produ = produ.replace(",",".")
                     print("Apel ro word net: " + wrd)
                     categorie_finala = ro_word_net(wrd)
                     if categorie_finala != "none" and categorie_finala is not None:

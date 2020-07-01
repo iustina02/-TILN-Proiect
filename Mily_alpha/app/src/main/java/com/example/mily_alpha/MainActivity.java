@@ -426,6 +426,13 @@ public class MainActivity extends AppCompatActivity {
                             for (String prodAll : productsAll) {
                                 String[] produ = prodAll.split(":");
                                 if (produ[0] != " " && produ[0] != "\n" && produ[0] != null && produ[0] != "") {
+
+                                    if(produ[0].substring(0,1).equals(" ")){
+                                        produ[0] = produ[0].substring(1);
+                                    }
+                                    if(produ[0].substring(0,1).equals(" ")){
+                                        produ[0] = produ[0].substring(1);
+                                    }
                                     productsName.add(produ[0]);
                                     if (produ.length > 1)
                                         productsCateg.add(produ[1]);
@@ -477,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
                                         alteCategListView.clearFocus();
 
                                         produsDetail.categorieProdus = productListView.getItemAtPosition(i).toString().replace(" ", "");
-                                        if(produsDetail.categorieProdus.equals("faina") || produsDetail.categorieProdus.equals("paste") || produsDetail.categorieProdus.equals("malai") ){
+                                        if(produsDetail.categorieProdus.equals("produs din cereale") ){
                                             produsDetail.categorieProdus = "cereale";
                                         }
                                         if(produsDetail.categorieProdus.equals("rădăcinoase")){
@@ -555,7 +562,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Log.d("Data Expirare", dataExpirareText.getText().toString());
                                                 produsDetail.dataExpirareProdus = dataExpirareText.getText().toString();
                                             }
-                                            if (dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ") && (produsDetail.categorieProdus.equals("lactate") || produsDetail.categorieProdus.equals("fruct"))){
+                                            if (dataExpirareText.getText().toString().equals(" Selecteaza data de expirare ") && (produsDetail.categorieProdus.equals("lactate") || produsDetail.categorieProdus.equals("carne"))){
                                                 ErrorDialog errorDialog = new ErrorDialog("Produs", "Este recomandat sa alegi o data de expirare pentru acest produs.");
                                                 errorDialog.show(getSupportFragmentManager(),"error dialog");
 
