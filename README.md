@@ -38,5 +38,14 @@ Proiectul la obiectul TILN - Mily
   //image to text google library
   // https://developers.google.com/android/guides/releases
   implementation 'com.google.android.gms:play-services-vision:19.0.0'
+  
+  https://www.youtube.com/watch?v=6NzLFWB9JyE&ab_channel=SarbuIuliaIustina
 
 # 03.04 Afisarea datelor de interes
+
+https://www.youtube.com/watch?v=YETP1KvEi8Y&t=3s&ab_channel=SarbuIuliaIustina
+
+
+Final Demo : (subtitles)
+
+https://www.youtube.com/watch?v=8iiPvA5zF2w&t=24s&ab_channel=SarbuIuliaIustina
