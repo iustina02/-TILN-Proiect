@@ -1,5 +1,5 @@
 # -Tehnici de Inginerie a Limbajului Natural - Proiect
-## Vizualizeaza documentul Prezentare Mily.pdf.
+## Vizualizeaza documentul Prezentare Mily.pdf
 Proiectul la obiectul TILN - Mily
 
 
